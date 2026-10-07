@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" width="1400" height="950" style="background:#0f172a; font-family:'Roboto', 'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.8"/>
+    </pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <rect x="20" y="20" width="1360" height="910" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  
+  <text x="50" y="65" fill="#38bdf8" font-size="22" font-weight="bold">ДЕТАЛИРОВОЧНЫЙ ЧЕРТЁЖ: СЪЕМНЫЙ ТЕРМОБОКС АКБ 72V 48Ah</text>
+  <text x="50" y="90" fill="#94a3b8" font-size="14">Модульный герметичный бокс: 20S NMC ячейки, Smart BMS 100A, греющий слой 12V, разъем Anderson SB175</text>
+
+  <!-- Штамп -->
+  <g transform="translate(980, 800)">
+    <rect width="380" height="110" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="15" y="30" fill="#94a3b8" font-size="12">Узел:</text>
+    <text x="100" y="30" fill="#f8fafc" font-size="14" font-weight="bold">Термобокс АКБ (1 из 2)</text>
+    <text x="15" y="60" fill="#94a3b8" font-size="12">Материал:</text>
+    <text x="100" y="60" fill="#f8fafc" font-size="13">Лист АМг2 1.5 мм + ЭППС 20 мм</text>
+    <text x="15" y="90" fill="#94a3b8" font-size="12">Чертеж:</text>
+    <text x="100" y="90" fill="#38bdf8" font-size="13">06-BAT-THERMO-72V / М 1:2</text>
+  </g>
+
+  <!-- 1. СХЕМА СЛОЕВ И СБОРКИ ВНУТРИ (РАЗРЕЗ) -->
+  <g transform="translate(100, 160)">
+    <text x="0" y="0" fill="#38bdf8" font-size="18" font-weight="bold">1. СЕЧЕНИЕ ТЕРМОБОКСА (УТЕПЛЕНИЕ И ПОДОГРЕВ)</text>
+
+    <!-- Внешний металлический корпус (360 х 240 мм) -->
+    <rect x="40" y="30" width="380" height="260" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="3"/>
+    <text x="50" y="55" fill="#94a3b8" font-size="11">Внешний корпус: алюминий 1.5 мм / сталь 1.0 мм</text>
+
+    <!-- Слой термоизоляции ЭППС 20 мм (Розовый/Оранжевый) -->
+    <rect x="65" y="65" width="330" height="200" rx="4" fill="#fbcfe8" stroke="#ec4899" stroke-width="2" opacity="0.4"/>
+    <text x="75" y="85" fill="#ec4899" font-size="11" font-weight="bold">Слой утеплителя ЭППС 20 мм</text>
+
+    <!-- Нагревательный мат 12V 40W (по дну и стенкам) -->
+    <line x1="90" y1="245" x2="370" y2="245" stroke="#ef4444" stroke-width="6"/>
+    <text x="140" y="240" fill="#ef4444" font-size="11" font-weight="bold">Греющий мат 12V 40W (под ячейками)</text>
+
+    <!-- 20 ячеек NMC (2 ряда по 10 шт) -->
+    <g transform="translate(90, 100)">
+      <rect width="280" height="130" fill="#7e22ce" stroke="#a855f7" stroke-width="2" rx="4"/>
+      <text x="25" y="55" fill="#fff" font-size="14" font-weight="bold">20S ПРИЗМАТИКИ NMC</text>
+      <text x="25" y="80" fill="#f8fafc" font-size="12">72V 48Ah (~3.5 кВт·ч, вес 22 кг)</text>
+      <!-- Контакты/шины ячеек -->
+      <line x1="20" y1="20" x2="260" y2="20" stroke="#fbbf24" stroke-width="6"/>
+      <text x="100" y="15" fill="#fbbf24" font-size="10">Медные никелированные шины</text>
+    </g>
+
+    <!-- Smart BMS 100A (сверху блока) -->
+    <rect x="130" y="35" width="200" height="25" rx="3" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="150" y="52" fill="#fff" font-size="11" font-weight="bold">JK / ANT Smart BMS 100A</text>
+
+    <!-- Размеры бокса -->
+    <line x1="40" y1="320" x2="420" y2="320" stroke="#38bdf8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    <text x="230" y="312" fill="#38bdf8" font-size="13" font-weight="bold" text-anchor="middle">380 мм (ДЛИНА БОКСА)</text>
+
+    <line x1="0" y1="30" x2="0" y2="290" stroke="#38bdf8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    <text x="-12" y="160" fill="#38bdf8" font-size="13" font-weight="bold" transform="rotate(-90, -12, 160)" text-anchor="middle">260 мм (ВЫСОТА БОКСА)</text>
+  </g>
+
+  <!-- 2. ТОРЦЕВАЯ ПАНЕЛЬ ПОДКЛЮЧЕНИЯ И РАЗЪЕМОВ -->
+  <g transform="translate(680, 160)">
+    <text x="0" y="0" fill="#38bdf8" font-size="18" font-weight="bold">2. ТОРЦЕВАЯ ПАНЕЛЬ (БЫСТРОСЪЕМНЫЕ РАЗЪЕМЫ)</text>
+
+    <rect x="40" y="30" width="300" height="260" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+
+    <!-- Силовой разъем Anderson SB175 (Главный силовой выход 72V) -->
+    <rect x="80" y="60" width="90" height="60" rx="6" fill="#dc2626" stroke="#f87171" stroke-width="2"/>
+    <circle cx="105" cy="90" r="12" fill="#0f172a"/>
+    <circle cx="145" cy="90" r="12" fill="#0f172a"/>
+    <text x="85" y="140" fill="#ef4444" font-size="11" font-weight="bold">Anderson SB175 (72V)</text>
+
+    <!-- Разъем подогрева 12V (Anderson SB50 или авиационный GX16) -->
+    <rect x="220" y="65" width="55" height="50" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+    <text x="210" y="135" fill="#38bdf8" font-size="11">Подогрев 12V</text>
+
+    <!-- Автомат постоянного тока 100A (ручной выключатель массы на боксе) -->
+    <rect x="80" y="160" width="70" height="90" rx="4" fill="#334155" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="100" y="195" width="30" height="40" fill="#fbbf24"/>
+    <text x="80" y="270" fill="#fbbf24" font-size="11" font-weight="bold">DC Автомат 100A</text>
+
+    <!-- Порт зарядки (XT90 / GX16) -->
+    <circle cx="245" cy="205" r="22" fill="#059669" stroke="#34d399" stroke-width="2"/>
+    <text x="215" y="245" fill="#34d399" font-size="11">Зарядка 84V</text>
+
+    <!-- Схема логики работы терморегулятора -->
+    <g transform="translate(0, 310)">
+      <rect width="600" height="150" fill="#1e293b" stroke="#64748b" stroke-width="1" rx="4"/>
+      <text x="15" y="25" fill="#38bdf8" font-size="13" font-weight="bold">★ АВТОНОМНЫЙ ЗИМНИЙ ТЕРМОКОНТРОЛЬ:</text>
+      <text x="15" y="50" fill="#f8fafc" font-size="11">1. Термостат KSD9700 закреплен на центральной ячейке.</text>
+      <text x="15" y="70" fill="#94a3b8" font-size="11">   • Температура ниже +5°C: термостат включает мат подогрева 12V 40W.</text>
+      <text x="15" y="90" fill="#94a3b8" font-size="11">   • Температура достигает +20°C: термостат отключает питание подогрева.</text>
+      <text x="15" y="110" fill="#10b981" font-size="11">2. Энергопотребление подогрева: всего ~35-40 Вт (съедает менее 1% емкости за 2 часа).</text>
+      <text x="15" y="130" fill="#f8fafc" font-size="11">3. Быстросъемность: 2 защелки-замка лягушки позволяют за 1 минуту вынуть бокс и унести в тепло.</text>
+    </g>
+  </g>
+</svg>

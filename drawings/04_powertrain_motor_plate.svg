@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" width="1400" height="950" style="background:#0f172a; font-family:'Roboto', 'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.8"/>
+    </pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <rect x="20" y="20" width="1360" height="910" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  
+  <text x="50" y="65" fill="#38bdf8" font-size="22" font-weight="bold">ДЕТАЛИРОВОЧНЫЙ ЧЕРТЁЖ: МОТОРНАЯ ПЛИТА QS138 И НАТЯЖИТЕЛЬ ЦЕПИ 520</text>
+  <text x="50" y="90" fill="#94a3b8" font-size="14">Плита с продольными пазами для перемещения мотора и регулировки натяжки цепи 520</text>
+
+  <!-- Штамп -->
+  <g transform="translate(980, 800)">
+    <rect width="380" height="110" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="15" y="30" fill="#94a3b8" font-size="12">Деталь:</text>
+    <text x="100" y="30" fill="#f8fafc" font-size="14" font-weight="bold">Моторная плита QS138</text>
+    <text x="15" y="60" fill="#94a3b8" font-size="12">Материал:</text>
+    <text x="100" y="60" fill="#f8fafc" font-size="13">Лист сталь 09Г2С / Ст3, t = 6-8 мм</text>
+    <text x="15" y="90" fill="#94a3b8" font-size="12">Чертеж:</text>
+    <text x="100" y="90" fill="#38bdf8" font-size="13">04-PWR-PLATE-QS138 / М 1:2</text>
+  </g>
+
+  <!-- ПЛИТА (ВИД СВЕРХУ) Габариты 300 х 240 мм -->
+  <g transform="translate(100, 160)">
+    <!-- Контур плиты 300х240 (масштаб: 1 мм = 1.6 px -> 480 x 384 px) -->
+    <rect x="40" y="40" width="480" height="384" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="3"/>
+
+    <!-- Центральное посадочное окно под мотор QS138 (D = 110 мм -> 176 px) -->
+    <circle cx="280" cy="232" r="88" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="280" y="238" fill="#94a3b8" font-size="14" font-weight="bold" text-anchor="middle">Окно D = 110 мм</text>
+
+    <!-- 4 крепежных отверстия мотора QS138 (М10 по радиусу 135 мм) -->
+    <circle cx="280" cy="120" r="10" fill="#ef4444"/>
+    <circle cx="280" cy="344" r="10" fill="#ef4444"/>
+    <circle cx="168" cy="232" r="10" fill="#ef4444"/>
+    <circle cx="392" cy="232" r="10" fill="#ef4444"/>
+    <text x="280" y="105" fill="#ef4444" font-size="11" text-anchor="middle">Отв. 4х М10 (R=85)</text>
+
+    <!-- 4 ПРОДОЛЬНЫХ ПАЗА ДЛЯ НАТЯЖКИ ЦЕПИ К РАМЕ (12 х 55 мм -> 19 x 88 px) -->
+    <!-- Паз 1 (вверху слева) -->
+    <rect x="70" y="70" width="88" height="19" rx="9" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+    <!-- Паз 2 (внизу слева) -->
+    <rect x="70" y="375" width="88" height="19" rx="9" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+    <!-- Паз 3 (вверху справа) -->
+    <rect x="400" y="70" width="88" height="19" rx="9" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+    <!-- Паз 4 (внизу справа) -->
+    <rect x="400" y="375" width="88" height="19" rx="9" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="445" y="60" fill="#38bdf8" font-size="11" text-anchor="middle">Пазы 12х55 под М10</text>
+
+    <!-- Размеры плиты -->
+    <!-- Длина 300 мм -->
+    <line x1="40" y1="460" x2="520" y2="460" stroke="#38bdf8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    <line x1="40" y1="424" x2="40" y2="470" stroke="#38bdf8" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="520" y1="424" x2="520" y2="470" stroke="#38bdf8" stroke-width="1" stroke-dasharray="2,2"/>
+    <text x="280" y="452" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">300 мм (ДЛИНА ПЛИТЫ)</text>
+
+    <!-- Ширина 240 мм -->
+    <line x1="0" y1="40" x2="0" y2="424" stroke="#38bdf8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    <line x1="0" y1="40" x2="40" y2="40" stroke="#38bdf8" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="0" y1="424" x2="40" y2="424" stroke="#38bdf8" stroke-width="1" stroke-dasharray="2,2"/>
+    <text x="-12" y="232" fill="#38bdf8" font-size="14" font-weight="bold" transform="rotate(-90, -12, 232)" text-anchor="middle">240 мм (ШИРИНА ПЛИТЫ)</text>
+  </g>
+
+  <!-- СХЕМА УЗЛА НАТЯЖИТЕЛЯ ЦЕПИ И ОПОР ПОДШИПНИКОВ -->
+  <g transform="translate(720, 160)">
+    <rect width="580" height="480" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" rx="6"/>
+    <text x="25" y="35" fill="#38bdf8" font-size="16" font-weight="bold">УЗЕЛ ПРИВОДА: ЦЕПЬ 520 И ПОДШИПНИКИ UCP206</text>
+
+    <g transform="translate(40, 70)">
+      <!-- Звезда ведущая 14T на моторе (вверху) -->
+      <circle cx="100" cy="60" r="32" fill="#ef4444" stroke="#f87171" stroke-width="2"/>
+      <circle cx="100" cy="60" r="12" fill="#0f172a"/>
+      <text x="100" y="65" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">14T</text>
+
+      <!-- Звезда ведомая 47T на дифференциале (внизу) -->
+      <circle cx="100" cy="250" r="95" fill="#334155" stroke="#94a3b8" stroke-width="3"/>
+      <circle cx="100" cy="250" r="40" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="100" y="255" fill="#fff" font-size="16" font-weight="bold" text-anchor="middle">47T (дифференциал)</text>
+
+      <!-- Цепь 520 -->
+      <line x1="68" y1="60" x2="5" y2="250" stroke="#fbbf24" stroke-width="8"/>
+      <line x1="132" y1="60" x2="195" y2="250" stroke="#fbbf24" stroke-width="8"/>
+      <text x="215" y="150" fill="#fbbf24" font-size="12" font-weight="bold">Цепь 520 O-Ring</text>
+
+      <!-- Натяжной болт М10 с упором в раму -->
+      <rect x="250" y="45" width="140" height="18" fill="#475569" stroke="#cbd5e1" stroke-width="1"/>
+      <circle cx="390" cy="54" r="14" fill="#f59e0b"/>
+      <text x="260" y="35" fill="#f8fafc" font-size="11">Упорный винт натяжки М10</text>
+    </g>
+
+    <g transform="translate(30, 390)">
+      <text x="0" y="20" fill="#f8fafc" font-size="12" font-weight="bold">Опоры вала дифференциала:</text>
+      <text x="0" y="40" fill="#94a3b8" font-size="11">• 2 корпусных подшипника UCP206 (диаметр вала 30 мм, динамич. нагрузка 19.5 кН).</text>
+      <text x="0" y="60" fill="#94a3b8" font-size="11">• Привариваются к нижней раме через стальные проставки 10 мм с болтами М14.</text>
+    </g>
+  </g>
+</svg>

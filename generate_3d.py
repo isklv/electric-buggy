@@ -1,0 +1,391 @@
+#!/usr/bin/env python3
+"""
+Генератор 3D-модели рамы и компонентов багги (Wavefront .OBJ) и интерактивного HTML 3D-просмотрщика
+"""
+import os
+import math
+
+def generate_obj_and_html(output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    obj_path = os.path.join(output_dir, "buggy_frame_chassis.obj")
+    html_path = os.path.join(output_dir, "viewer.html")
+    
+    # Создаем 3D геометрию узлов
+    # Координаты в миллиметрах: X - поперек (влево/вправо), Y - вертикаль (вверх), Z - продольно (вперед/назад)
+    # Z+ вперед, Z- назад, Y+ вверх, X+ вправо
+    
+    # Запишем красивый интерактивный HTML 3D-просмотрщик на Three.js
+    html_content = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Модель: Двухместный Электробагги (RWD, IRS, Модульная АКБ)</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background: #1a1e24; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; }
+        #canvas-container { width: 100vw; height: 100vh; display: block; }
+        #ui-panel {
+            position: absolute; top: 15px; left: 15px; width: 330px;
+            background: rgba(20, 24, 32, 0.92); backdrop-filter: blur(8px);
+            padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; font-size: 13px;
+        }
+        h2 { margin: 0 0 8px 0; font-size: 17px; color: #38bdf8; font-weight: 600; }
+        .badge { display: inline-block; background: #0284c7; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 11px; margin-bottom: 12px; }
+        .specs { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+        .spec-item { display: flex; justify-content: space-between; margin-bottom: 4px; color: #94a3b8; }
+        .spec-val { color: #f1f5f9; font-weight: 500; }
+        .controls-group { margin-top: 10px; }
+        .toggle-btn {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #27303f; border: 1px solid #3b4758; color: #e2e8f0;
+            padding: 7px 12px; border-radius: 6px; margin-bottom: 6px; cursor: pointer; width: 100%; box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        .toggle-btn:hover { background: #334155; }
+        .toggle-btn.active { border-color: #38bdf8; background: #1e293b; }
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .legend { margin-top: 15px; font-size: 11px; color: #64748b; line-height: 1.4; }
+    </style>
+    <!-- Three.js + OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div id="ui-panel">
+        <h2>⚡ Электробагги 2-местный</h2>
+        <span class="badge">RWD • IRS • Без трубогиба</span>
+        <div class="specs">
+            <div class="spec-item"><span>База / Колея:</span><span class="spec-val">2050 мм / 1300 мм</span></div>
+            <div class="spec-item"><span>Клиренс:</span><span class="spec-val">280 мм</span></div>
+            <div class="spec-item"><span>Мотор / Мощность:</span><span class="spec-val">QS138 70H (пик 13 кВт)</span></div>
+            <div class="spec-item"><span>Скорость:</span><span class="spec-val">52 - 60 км/ч</span></div>
+            <div class="spec-item"><span>Батареи (2 отсека):</span><span class="spec-val">72V 48Ah + 48Ah (50+50 км)</span></div>
+            <div class="spec-item"><span>Сила тяги (пик):</span><span class="spec-val">2345 Н (~240 кгс)</span></div>
+        </div>
+        <div class="controls-group">
+            <button class="toggle-btn active" onclick="toggleLayer('cage')">
+                <span><span class="color-dot" style="background:#38bdf8"></span>Каркас безопасности (40х40)</span><span id="st-cage">ВКЛ</span>
+            </button>
+            <button class="toggle-btn active" onclick="toggleLayer('base')">
+                <span><span class="color-dot" style="background:#f59e0b"></span>Нижняя рама (50х50)</span><span id="st-base">ВКЛ</span>
+            </button>
+            <button class="toggle-btn active" onclick="toggleLayer('suspension')">
+                <span><span class="color-dot" style="background:#10b981"></span>Рычаги IRS и колеса</span><span id="st-suspension">ВКЛ</span>
+            </button>
+            <button class="toggle-btn active" onclick="toggleLayer('batteries')">
+                <span><span class="color-dot" style="background:#a855f7"></span>Модули АКБ (2 шт по центру)</span><span id="st-batteries">ВКЛ</span>
+            </button>
+            <button class="toggle-btn active" onclick="toggleLayer('drivetrain')">
+                <span><span class="color-dot" style="background:#ef4444"></span>Мотор, цепь, редуктор ВАЗ</span><span id="st-drivetrain">ВКЛ</span>
+            </button>
+            <button class="toggle-btn active" onclick="toggleLayer('plow')">
+                <span><span class="color-dot" style="background:#06b6d4"></span>Крепеж снегоотвала</span><span id="st-plow">ВКЛ</span>
+            </button>
+        </div>
+        <div class="legend">
+            💡 <b>Управление:</b> ЛКМ — вращение, ПКМ — перемещение, Колесо — масштаб.
+        </div>
+    </div>
+    <div id="canvas-container"></div>
+
+    <script>
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x13171f);
+        scene.fog = new THREE.FogExp2(0x13171f, 0.00015);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 10000);
+        camera.position.set(2800, 1800, 3200);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 500, 0);
+
+        // Сетка земли
+        const grid = new THREE.GridHelper(6000, 60, 0x334155, 0x1e293b);
+        grid.position.y = 0;
+        scene.add(grid);
+
+        // Освещение
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.7);
+        scene.add(hemiLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(2000, 4000, 2000);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.4);
+        dirLight2.position.set(-2000, 2000, -2000);
+        scene.add(dirLight2);
+
+        // Группы слоев
+        const groups = {
+            base: new THREE.Group(),
+            cage: new THREE.Group(),
+            suspension: new THREE.Group(),
+            batteries: new THREE.Group(),
+            drivetrain: new THREE.Group(),
+            plow: new THREE.Group()
+        };
+        Object.values(groups).forEach(g => scene.add(g));
+
+        // Материалы
+        const matBase = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4, metalness: 0.6 }); // оранжевый металл
+        const matCage = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.7 }); // синий каркас
+        const matSusp = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5, metalness: 0.5 }); // зеленый
+        const matTire = new THREE.MeshStandardMaterial({ color: 0x1e2229, roughness: 0.9, metalness: 0.1 }); // резина
+        const matRim = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.2, metalness: 0.8 });  // диски
+        const matBat = new THREE.MeshStandardMaterial({ color: 0x9333ea, roughness: 0.3, metalness: 0.4 });  // фиолетовый
+        const matMotor = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.3, metalness: 0.8 });// красный мотор
+        const matPlow = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4, metalness: 0.6 }); // бирюзовый
+
+        // Функция добавления балки (прямоугольной трубы) между двумя 3D точками
+        function addBeam(group, p1, p2, width, height, material) {
+            const v1 = new THREE.Vector3(...p1);
+            const v2 = new THREE.Vector3(...p2);
+            const distance = v1.distanceTo(v2);
+            const geom = new THREE.BoxGeometry(width, height, distance);
+            const mesh = new THREE.Mesh(geom, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            const mid = new THREE.Vector3().addVectors(v1, v2).multiplyScalar(0.5);
+            mesh.position.copy(mid);
+            mesh.lookAt(v2);
+            group.add(mesh);
+        }
+
+        // --- 1. НИЖНЯЯ ПЛАТФОРМА (50х50) ---
+        const groundClearance = 280;
+        const baseZ_front = 1050;
+        const baseZ_rear = -1050;
+        const halfW = 550; // ширина пола 1100 мм
+
+        // Лонжероны
+        addBeam(groups.base, [-halfW, groundClearance, baseZ_rear], [-halfW, groundClearance, baseZ_front], 50, 50, matBase);
+        addBeam(groups.base, [halfW, groundClearance, baseZ_rear], [halfW, groundClearance, baseZ_front], 50, 50, matBase);
+        // Поперечины
+        addBeam(groups.base, [-halfW, groundClearance, baseZ_front], [halfW, groundClearance, baseZ_front], 50, 50, matBase);
+        addBeam(groups.base, [-halfW, groundClearance, baseZ_rear], [halfW, groundClearance, baseZ_rear], 50, 50, matBase);
+        addBeam(groups.base, [-halfW, groundClearance, 0], [halfW, groundClearance, 0], 50, 50, matBase);
+        addBeam(groups.base, [-halfW, groundClearance, -500], [halfW, groundClearance, -500], 50, 50, matBase);
+        addBeam(groups.base, [-halfW, groundClearance, 500], [halfW, groundClearance, 500], 50, 50, matBase);
+
+        // --- 2. КАРКАС БЕЗОПАСНОСТИ (40х40) БЕЗ ТРУБОГИБА ---
+        const roofH = groundClearance + 1150;
+        const roofHalfW = 480;
+        const A_pillar_Z = 300;
+        const B_pillar_Z = -550;
+
+        // Главные вертикальные стойки (В-стойки)
+        addBeam(groups.cage, [-halfW, groundClearance, B_pillar_Z], [-roofHalfW, roofH, B_pillar_Z], 40, 40, matCage);
+        addBeam(groups.cage, [halfW, groundClearance, B_pillar_Z], [roofHalfW, roofH, B_pillar_Z], 40, 40, matCage);
+        // Наклонные стойки (А-стойки лобового стекла)
+        addBeam(groups.cage, [-halfW, groundClearance, A_pillar_Z], [-roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
+        addBeam(groups.cage, [halfW, groundClearance, A_pillar_Z], [roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
+
+        // Верхний контур крыши
+        addBeam(groups.cage, [-roofHalfW, roofH, A_pillar_Z - 100], [roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
+        addBeam(groups.cage, [-roofHalfW, roofH, B_pillar_Z], [roofHalfW, roofH, B_pillar_Z], 40, 40, matCage);
+        addBeam(groups.cage, [-roofHalfW, roofH, B_pillar_Z], [-roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
+        addBeam(groups.cage, [roofHalfW, roofH, B_pillar_Z], [roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
+
+        // Задние диагонали и моторный отсек
+        addBeam(groups.cage, [-roofHalfW, roofH, B_pillar_Z], [-halfW, groundClearance, baseZ_rear], 40, 40, matCage);
+        addBeam(groups.cage, [roofHalfW, roofH, B_pillar_Z], [halfW, groundClearance, baseZ_rear], 40, 40, matCage);
+        // Задний крест жесткости
+        addBeam(groups.cage, [-halfW, groundClearance, B_pillar_Z], [roofHalfW, roofH, B_pillar_Z], 30, 30, matCage);
+        addBeam(groups.cage, [halfW, groundClearance, B_pillar_Z], [-roofHalfW, roofH, B_pillar_Z], 30, 30, matCage);
+
+        // Передний капотный треугольник к подрамнику подвески
+        addBeam(groups.cage, [-halfW, groundClearance, A_pillar_Z], [-300, groundClearance + 350, baseZ_front], 40, 40, matCage);
+        addBeam(groups.cage, [halfW, groundClearance, A_pillar_Z], [300, groundClearance + 350, baseZ_front], 40, 40, matCage);
+        addBeam(groups.cage, [-300, groundClearance + 350, baseZ_front], [300, groundClearance + 350, baseZ_front], 40, 40, matCage);
+
+        // Боковые защитные дуги (пороги)
+        addBeam(groups.cage, [-halfW - 80, groundClearance + 350, B_pillar_Z], [-halfW - 80, groundClearance + 350, A_pillar_Z], 40, 40, matCage);
+        addBeam(groups.cage, [halfW + 80, groundClearance + 350, B_pillar_Z], [halfW + 80, groundClearance + 350, A_pillar_Z], 40, 40, matCage);
+
+        // --- 3. ПОДВЕСКА И КОЛЕСА (175/70 R13) ---
+        const wheelRadius = 288;
+        const trackHalf = 650; // половина колеи 1300 мм
+
+        function addWheel(group, x, z) {
+            const wheelGroup = new THREE.Group();
+            wheelGroup.position.set(x, wheelRadius, z);
+
+            // Шина
+            const tireGeom = new THREE.CylinderGeometry(wheelRadius, wheelRadius, 175, 24);
+            tireGeom.rotateZ(Math.PI / 2);
+            const tire = new THREE.Mesh(tireGeom, matTire);
+            tire.castShadow = true;
+            wheelGroup.add(tire);
+
+            // Диск
+            const rimGeom = new THREE.CylinderGeometry(165, 165, 176, 16);
+            rimGeom.rotateZ(Math.PI / 2);
+            const rim = new THREE.Mesh(rimGeom, matRim);
+            wheelGroup.add(rim);
+
+            group.add(wheelGroup);
+
+            // А-рычаги подвески (Верхний и Нижний)
+            const sign = x > 0 ? 1 : -1;
+            const innerX = sign * halfW;
+            const outerX = sign * (trackHalf - 50);
+
+            // Нижний А-рычаг
+            addBeam(group, [innerX, groundClearance, z - 120], [outerX, wheelRadius - 40, z], 25, 25, matSusp);
+            addBeam(group, [innerX, groundClearance, z + 120], [outerX, wheelRadius - 40, z], 25, 25, matSusp);
+            // Верхний А-рычаг
+            addBeam(group, [innerX * 0.7, groundClearance + 220, z - 100], [outerX, wheelRadius + 60, z], 25, 25, matSusp);
+            addBeam(group, [innerX * 0.7, groundClearance + 220, z + 100], [outerX, wheelRadius + 60, z], 25, 25, matSusp);
+
+            // Амортизатор
+            addBeam(group, [outerX - sign * 40, wheelRadius, z], [innerX * 0.6, groundClearance + 350, z], 30, 30, matRim);
+        }
+
+        // 4 колеса
+        const wheelZ_F = baseZ_front - 100; // ~950
+        const wheelZ_R = baseZ_rear + 100;  // ~ -950
+        addWheel(groups.suspension, trackHalf, wheelZ_F);
+        addWheel(groups.suspension, -trackHalf, wheelZ_F);
+        addWheel(groups.suspension, trackHalf, wheelZ_R);
+        addWheel(groups.suspension, -trackHalf, wheelZ_R);
+
+        // ШРУСы и задние приводы
+        addBeam(groups.suspension, [0, wheelRadius, wheelZ_R], [trackHalf - 60, wheelRadius, wheelZ_R], 30, 30, matRim);
+        addBeam(groups.suspension, [0, wheelRadius, wheelZ_R], [-trackHalf + 60, wheelRadius, wheelZ_R], 30, 30, matRim);
+
+        // --- 4. МОДУЛЬНАЯ БАТАРЕЯ (2 МОДУЛЯ ПО ЦЕНТРУ ТАНДЕМОМ) ---
+        function addBatteryBox(group, zPos, label) {
+            const batGeom = new THREE.BoxGeometry(320, 220, 420);
+            const batMesh = new THREE.Mesh(batGeom, matBat);
+            batMesh.position.set(0, groundClearance + 130, zPos);
+            batMesh.castShadow = true;
+            group.add(batMesh);
+
+            // Металлический лоток АКБ
+            const trayGeom = new THREE.BoxGeometry(340, 10, 440);
+            const trayMesh = new THREE.Mesh(trayGeom, matBase);
+            trayMesh.position.set(0, groundClearance + 10, zPos);
+            group.add(trayMesh);
+        }
+
+        addBatteryBox(groups.batteries, 100, "АКБ №1 (50 км)");
+        addBatteryBox(groups.batteries, -350, "АКБ №2 (+50 км)");
+
+        // Сиденья (по бокам от батарейного тоннеля)
+        const seatGeom = new THREE.BoxGeometry(420, 50, 440);
+        const seatBackGeom = new THREE.BoxGeometry(420, 550, 50);
+        const matSeat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
+
+        [-280, 280].forEach(sx => {
+            const seatBase = new THREE.Mesh(seatGeom, matSeat);
+            seatBase.position.set(sx, groundClearance + 160, -100);
+            groups.base.add(seatBase);
+
+            const seatBack = new THREE.Mesh(seatBackGeom, matSeat);
+            seatBack.position.set(sx, groundClearance + 430, -320);
+            seatBack.rotation.x = -0.25;
+            groups.base.add(seatBack);
+        });
+
+        // --- 5. СИЛОВАЯ ЧАСТЬ (QS138 + РЕДУКТОР ВАЗ) ---
+        // Центральный дифференциал
+        const diffGeom = new THREE.CylinderGeometry(110, 110, 180, 16);
+        diffGeom.rotateZ(Math.PI / 2);
+        const diffMesh = new THREE.Mesh(diffGeom, matMotor);
+        diffMesh.position.set(0, wheelRadius, wheelZ_R);
+        groups.drivetrain.add(diffMesh);
+
+        // Большая ведомая звезда (47T)
+        const sprocketGeom = new THREE.CylinderGeometry(120, 120, 8, 24);
+        sprocketGeom.rotateZ(Math.PI / 2);
+        const sprocMesh = new THREE.Mesh(sprocketGeom, matRim);
+        sprocMesh.position.set(40, wheelRadius, wheelZ_R);
+        groups.drivetrain.add(sprocMesh);
+
+        // Мотор QS138 70H (над редуктором)
+        const motorGeom = new THREE.CylinderGeometry(105, 105, 230, 24);
+        motorGeom.rotateZ(Math.PI / 2);
+        const motorMesh = new THREE.Mesh(motorGeom, matMotor);
+        motorMesh.position.set(0, wheelRadius + 230, wheelZ_R + 150);
+        groups.drivetrain.add(motorMesh);
+
+        // Цепь
+        addBeam(groups.drivetrain, [40, wheelRadius, wheelZ_R], [40, wheelRadius + 230, wheelZ_R + 150], 12, 12, matRim);
+
+        // Контроллер Votol EM150
+        const ctrlGeom = new THREE.BoxGeometry(200, 90, 280);
+        const ctrlMesh = new THREE.Mesh(ctrlGeom, matRim);
+        ctrlMesh.position.set(0, roofH - 450, B_pillar_Z);
+        groups.drivetrain.add(ctrlMesh);
+
+        // --- 6. КРЕПЕЖ СНЕГООТВАЛА (Спереди) ---
+        // Приемный квадрат 50х50 спереди
+        addBeam(groups.plow, [0, groundClearance, baseZ_front], [0, groundClearance, baseZ_front + 250], 60, 60, matPlow);
+        // Дышло отвала (раздвоенное)
+        addBeam(groups.plow, [-350, groundClearance - 50, baseZ_front + 600], [0, groundClearance, baseZ_front + 250], 50, 50, matPlow);
+        addBeam(groups.plow, [350, groundClearance - 50, baseZ_front + 600], [0, groundClearance, baseZ_front + 250], 50, 50, matPlow);
+
+        // Сам отвал (ковш 1400 мм шириной, изогнутый цилиндр)
+        const bladeGeom = new THREE.CylinderGeometry(400, 400, 1400, 16, 1, false, 0, Math.PI / 3);
+        bladeGeom.rotateZ(Math.PI / 2);
+        bladeGeom.rotateY(-0.35); // скос для сброса снега вправо
+        const bladeMesh = new THREE.Mesh(bladeGeom, matPlow);
+        bladeMesh.position.set(0, groundClearance + 50, baseZ_front + 650);
+        bladeMesh.castShadow = true;
+        groups.plow.add(bladeMesh);
+
+        // Лебедка подъема
+        const winchGeom = new THREE.CylinderGeometry(55, 55, 140, 16);
+        winchGeom.rotateZ(Math.PI / 2);
+        const winchMesh = new THREE.Mesh(winchGeom, matRim);
+        winchMesh.position.set(0, groundClearance + 320, baseZ_front);
+        groups.plow.add(winchMesh);
+
+        // Переключение видимости слоев
+        window.toggleLayer = function(layerName) {
+            const grp = groups[layerName];
+            if (grp) {
+                grp.visible = !grp.visible;
+                const statusSpan = document.getElementById('st-' + layerName);
+                if (statusSpan) {
+                    statusSpan.innerText = grp.visible ? "ВКЛ" : "ВЫКЛ";
+                    statusSpan.parentElement.classList.toggle('active', grp.visible);
+                }
+            }
+        };
+
+        // Анимация
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
+"""
+    with open(html_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+    print(f"HTML 3D Viewer сохранен в: {html_path}")
+
+if __name__ == "__main__":
+    generate_obj_and_html("/home/isklv/orca/neuroflow/electric_buggy")

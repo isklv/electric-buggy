@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" width="1400" height="950" style="background:#0f172a; font-family:'Roboto', 'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.8"/>
+    </pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <rect x="20" y="20" width="1360" height="910" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  
+  <text x="50" y="65" fill="#38bdf8" font-size="22" font-weight="bold">ДЕТАЛИРОВОЧНЫЙ ЧЕРТЁЖ: ЗАДНЯЯ НЕЗАВИСИМАЯ ПОДВЕСКА (IRS)</text>
+  <text x="50" y="90" fill="#94a3b8" font-size="14">Схема узла: кулак ВАЗ-2108, привод ШРУС, рулевой сгон для фиксации и регулировки схождения</text>
+
+  <!-- Штамп -->
+  <g transform="translate(980, 800)">
+    <rect width="380" height="110" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="15" y="30" fill="#94a3b8" font-size="12">Узел:</text>
+    <text x="100" y="30" fill="#f8fafc" font-size="14" font-weight="bold">Задняя подвеска IRS</text>
+    <text x="15" y="60" fill="#94a3b8" font-size="12">Компоненты:</text>
+    <text x="100" y="60" fill="#f8fafc" font-size="13">Кулак 2108 + ШРУС + Сгон М16</text>
+    <text x="15" y="90" fill="#94a3b8" font-size="12">Чертеж:</text>
+    <text x="100" y="90" fill="#38bdf8" font-size="13">03-SUSP-REAR-IRS / Масштаб 1:2.5</text>
+  </g>
+
+  <!-- Схема сбора одного борта (Вид сзади / в плане) -->
+  <g transform="translate(80, 160)">
+    <!-- Рама (сечение лонжерона 50х50) -->
+    <rect x="0" y="100" width="50" height="50" fill="#d97706" stroke="#f59e0b" stroke-width="2"/>
+    <text x="12" y="130" fill="#fff" font-size="11" font-weight="bold">50x50</text>
+    <rect x="20" y="20" width="40" height="40" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+    <text x="25" y="45" fill="#fff" font-size="10">40x40</text>
+
+    <!-- Приводной вал ШРУС (от центрального дифференциала к ступице) -->
+    <line x1="-60" y1="125" x2="420" y2="125" stroke="#94a3b8" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="0" cy="125" r="22" fill="#475569" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="-45" y="165" fill="#94a3b8" font-size="11">Внутренний ШРУС</text>
+    <circle cx="420" cy="125" r="22" fill="#475569" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="390" y="165" fill="#94a3b8" font-size="11">Внешний ШРУС</text>
+
+    <!-- Нижний рычаг (от рамы Y=125 к низу кулака Y=160) -->
+    <line x1="50" y1="125" x2="420" y2="185" stroke="#10b981" stroke-width="12" stroke-linecap="round"/>
+    <!-- Верхний рычаг (от рамы Y=40 к верху кулака Y=65) -->
+    <line x1="60" y1="40" x2="420" y2="65" stroke="#10b981" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Задний поворотный кулак ВАЗ-2108 (вертикальная стойка) -->
+    <rect x="410" y="55" width="24" height="140" rx="4" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+    <!-- Тормозной диск и ступица -->
+    <rect x="434" y="25" width="16" height="200" rx="3" fill="#cbd5e1" stroke="#fff" stroke-width="2"/>
+    <!-- Колесо R13 (сечение) -->
+    <rect x="450" y="0" width="120" height="250" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="2.5"/>
+    <text x="475" y="130" fill="#f8fafc" font-size="14" font-weight="bold">175/70 R13</text>
+
+    <!-- УЗЕЛ ФИКСАЦИИ СХОЖДЕНИЯ (РУЛЕВОЙ СГОН) -->
+    <!-- Сошка кулака (направлена вперед/вглубь) -->
+    <path d="M 410,125 L 340,195" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+    <rect x="330" y="185" width="80" height="16" rx="4" fill="#b91c1c" stroke="#f87171" stroke-width="1.5"/>
+    <text x="345" y="198" fill="#fff" font-size="10" font-weight="bold">Тяга схождения</text>
+    <!-- Регулировочная резьбовая муфта М16х1.5 (Сгон ВАЗ-2108) -->
+    <rect x="230" y="187" width="90" height="12" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+    <text x="240" y="197" fill="#0f172a" font-size="9" font-weight="bold">Сгон М16 L=120</text>
+    <!-- Тяга к раме -->
+    <line x1="50" y1="140" x2="230" y2="193" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Размеры -->
+    <line x1="0" y1="280" x2="510" y2="280" stroke="#38bdf8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    <text x="255" y="272" fill="#38bdf8" font-size="13" font-weight="bold" text-anchor="middle">650 мм (ПОЛОВИНА КОЛЕИ ОТ ЦЕНТРА)</text>
+  </g>
+
+  <!-- Деталировка регулировочного сгона схождения -->
+  <g transform="translate(750, 160)">
+    <rect width="550" height="340" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" rx="6"/>
+    <text x="20" y="35" fill="#38bdf8" font-size="16" font-weight="bold">ДЕТАЛЬ: ТЯГА РЕГУЛИРОВКИ СХОЖДЕНИЯ (СГОН ВАЗ)</text>
+
+    <!-- Чертёж сгона -->
+    <g transform="translate(40, 70)">
+      <rect x="20" y="25" width="220" height="30" rx="4" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+      <!-- Левая и правая резьба -->
+      <line x1="20" y1="32" x2="80" y2="32" stroke="#fbbf24" stroke-width="3" stroke-dasharray="3,3"/>
+      <line x1="160" y1="32" x2="220" y2="32" stroke="#fbbf24" stroke-width="3" stroke-dasharray="3,3"/>
+      <!-- Наконечник ШС или сайлентблок -->
+      <circle cx="20" cy="40" r="18" fill="#475569" stroke="#cbd5e1" stroke-width="2"/>
+      <circle cx="20" cy="40" r="6" fill="#38bdf8"/>
+      <circle cx="220" cy="40" r="18" fill="#475569" stroke="#cbd5e1" stroke-width="2"/>
+      <circle cx="220" cy="40" r="6" fill="#38bdf8"/>
+      <!-- Контргайки -->
+      <rect x="75" y="20" width="16" height="40" rx="2" fill="#f59e0b"/>
+      <rect x="149" y="20" width="16" height="40" rx="2" fill="#f59e0b"/>
+      <text x="65" y="80" fill="#fbbf24" font-size="11">Контргайка М16</text>
+      <text x="140" y="80" fill="#fbbf24" font-size="11">Контргайка М16</text>
+    </g>
+
+    <text x="20" y="195" fill="#f8fafc" font-size="13" font-weight="bold">Инструкция по настройке задней колеи:</text>
+    <text x="20" y="225" fill="#94a3b8" font-size="12">1. Схождение задних колес выставлять строго в 0° 00' (или до +0° 10' суммарно).</text>
+    <text x="20" y="250" fill="#94a3b8" font-size="12">2. Вращением трубной муфты сгона удлинять или укорачивать тягу.</text>
+    <text x="20" y="275" fill="#94a3b8" font-size="12">3. После регулировки затянуть обе контргайки моментом 75-80 Нм с фиксатором резьбы.</text>
+    <text x="20" y="300" fill="#ef4444" font-size="12" font-weight="bold">ВАЖНО: Люфт в этом узле недопустим — проверяется перед каждым выездом!</text>
+  </g>
+</svg>
