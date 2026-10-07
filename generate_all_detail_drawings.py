@@ -9,7 +9,7 @@
 """
 import os
 
-out_dir = "/home/isklv/orca/neuroflow/electric_buggy/drawings"
+out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drawings")
 os.makedirs(out_dir, exist_ok=True)
 
 def write_svg(filename, content):

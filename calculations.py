@@ -7,71 +7,21 @@ import math
 
 def calculate_powertrain():
     print("=" * 60)
-    print(" 1. ТЯГОВО-ДИНАМИЧЕСКИЙ РАСЧЕТ И ТРАНСМИССИЯ")
+    print(" 1. ТЯГОВО-ДИНАМИЧЕСКИЙ РАСЧЕТ: QS138 -> ЦЕПЬ 520 -> КПП 2108")
     print("=" * 60)
-    
-    # Исходные данные
-    wheel_rim_inch = 13
-    tire_width_mm = 175
-    tire_profile_pct = 70
-    
-    # Диаметр колеса
-    sidewall_m = (tire_width_mm * (tire_profile_pct / 100)) / 1000.0
-    rim_m = (wheel_rim_inch * 25.4) / 1000.0
-    wheel_diameter_m = rim_m + 2 * sidewall_m
-    wheel_radius_m = wheel_diameter_m / 2.0
-    wheel_circ_m = math.pi * wheel_diameter_m
-    
-    print(f"Колесо: 175/70 R13")
-    print(f"Диаметр колеса: {wheel_diameter_m*1000:.1f} мм (радиус: {wheel_radius_m*1000:.1f} мм)")
-    print(f"Длина окружности колеса: {wheel_circ_m:.3f} м")
-    
-    # Мотор QS138 70H V3
-    motor_rpm_nom = 3800
-    motor_rpm_max = 4400
-    motor_internal_ratio = 2.35  # внутренний редуктор QS138 V3
-    motor_torque_nom_nm = 32.0   # на валу мотора
-    motor_torque_peak_nm = 90.0  # на валу мотора
-    
-    # Выходной вал мотора (после встроенного редуктора)
-    shaft_torque_nom = motor_torque_nom_nm * motor_internal_ratio
-    shaft_torque_peak = motor_torque_peak_nm * motor_internal_ratio
-    print(f"\nМотор: QS138 70H V3 (внутренний редуктор 1:{motor_internal_ratio})")
-    print(f"Крутящий момент на выходной звезде мотора: ном. {shaft_torque_nom:.1f} Нм, пик {shaft_torque_peak:.1f} Нм")
-    
-    # Звезды цепи 520
-    sprocket_motor = 14
-    sprocket_diff = 47
-    chain_ratio = sprocket_diff / sprocket_motor
-    total_ratio = motor_internal_ratio * chain_ratio
-    chain_efficiency = 0.95
-    
-    print(f"\nЦепная передача 520:")
-    print(f"Ведущая звезда: {sprocket_motor} зубьев")
-    print(f"Ведомая звезда: {sprocket_diff} зубьев")
-    print(f"Передаточное число цепи: 1:{chain_ratio:.3f}")
-    print(f"ОБЩЕЕ передаточное отношение (мотор -> колеса): 1:{total_ratio:.2f}")
-    
-    # Скорости
-    speed_nom_kmh = (motor_rpm_nom / total_ratio) * wheel_circ_m * 60.0 / 1000.0
-    speed_max_kmh = (motor_rpm_max / total_ratio) * wheel_circ_m * 60.0 / 1000.0
-    
-    print(f"\nРасчетные скорости:")
-    print(f"Номинальная крейсерская скорость (3800 об/мин): {speed_nom_kmh:.1f} км/ч")
-    print(f"Максимальная скорость (4400 об/мин): {speed_max_kmh:.1f} км/ч")
-    
-    # Тяговое усилие на колесах (2 задних колеса)
-    wheel_torque_nom = shaft_torque_nom * chain_ratio * chain_efficiency
-    wheel_torque_peak = shaft_torque_peak * chain_ratio * chain_efficiency
-    tractive_force_nom_n = wheel_torque_nom / wheel_radius_m
-    tractive_force_peak_n = wheel_torque_peak / wheel_radius_m
-    tractive_force_peak_kg = tractive_force_peak_n / 9.81
-    
-    print(f"\nТяговые характеристики (для преодоления снега и подъемов):")
-    print(f"Крутящий момент на колесах (суммарный): ном. {wheel_torque_nom:.1f} Нм, пик {wheel_torque_peak:.1f} Нм")
-    print(f"Линейная сила тяги на колесах: ном. {tractive_force_nom_n:.0f} Н, пик {tractive_force_peak_n:.0f} Н")
-    print(f"Пиковое толкающее усилие: {tractive_force_peak_kg:.1f} кгс (~{tractive_force_peak_kg/1000:.2f} тонны тяги!)")
-    print("-> Этого усилия достаточно для толкания снежного вала до 250-300 кг перед отвалом.")
+    # Параметры трансмиссии — в chassis_geometry.py (единый источник)
+    import chassis_geometry as g
+    rpm, torque, rows = g.gearbox_table()
+    print(f"Колесо 175/70 R13, динамический радиус {g.WHEEL_RADIUS_DYN * 1000:.0f} мм")
+    print(f"Мотор QS138 70H V3: {g.MOTOR_RPM_MAX} об/мин, редуктор 1:{g.QS_REDUCTION}")
+    print(f"Цепь 520 {g.CHAIN_DRIVE}T/{g.CHAIN_DRIVEN}T -> первичный вал КПП 2108: до {rpm:.0f} об/мин, "
+          f"момент ограничен {torque:.0f} Нм (ток фаз в контроллере)")
+    print(f"Главная пара 2108: {g.FINAL_DRIVE_2108}")
+    print("\nПер. | i общ  | V max, км/ч | Момент на колесах, Нм | Тяга, кгс")
+    for gear, ratio, total, v, wheel_torque, force in rows:
+        print(f"  {gear}  | {total:6.2f} | {v:11.1f} | {wheel_torque:21.0f} | {force / 9.81:8.0f}")
+    print("-> 4-я передача — основной режим (55 км/ч), 2-я — работа с отвалом (тяга ~330 кгс).")
+
 
 def calculate_battery():
     print("\n" + "=" * 60)
