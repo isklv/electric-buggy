@@ -251,7 +251,7 @@ def draw_corner(v, detail=True, mirror=1):
                (500, 422), (508, 328), (560, 245), (574, 186)]
     o.append(poly([P(*p) for p in knuckle], "#475569", "#cbd5e1", 1.6, 0.95))
     # Адаптер АД-01 (щека)
-    adapter = [(492, 322), (546, 322), (543, 428), (547, 470), (538, 494), (512, 494), (503, 470), (486, 428)]
+    adapter = g.ADAPTER_OUTLINE
     o.append(poly([P(*p) for p in adapter], VIO, VIO, 1.6, 0.35))
     for b in g.LUG_BOLTS:
         o.append(circ(P(*b), v.L(9), BG, TXT, 1.4))
@@ -444,7 +444,7 @@ def sheet_08():
     lug = [(500, 310), (540, 310), (533, 425), (503, 425)]
     o.append(poly([v(*p) for p in lug], "none", MUT, 1.2, dash="5,3"))
     o.append(text(*v(470, 290), "штрих — прилив кулака 2108", 10, MUT))
-    adapter = [(492, 322), (546, 322), (543, 428), (547, 470), (538, 494), (512, 494), (503, 470), (486, 428)]
+    adapter = g.ADAPTER_OUTLINE
     o.append(poly([v(*p) for p in adapter], VIO, VIO, 2, 0.28))
     o.append(poly([v(486, 428), v(492, 428), v(498, 488), v(503, 470)], VIO, VIO, 1, 0.6))
     for b in g.LUG_BOLTS:
@@ -710,10 +710,7 @@ def sheet_10():
     o.append(line(vs(-1300, 0), vs(150, 0), MUT, 1.2))
     o.append(circ(vs(0, g.WHEEL_RADIUS_STATIC), vs.L(g.WHEEL_RADIUS_STATIC), "none", STEEL, 1.5))
     o.append(text(*vs(-40, 20), "перед. ось", 10, MUT, "end"))
-    pin = (g.STEER_Z - 10, inner[1] - 30)            # шестерня рейки
-    j2 = (-430, 560)                                  # кардан у щита
-    j1 = (-760, 690)                                  # кардан под панелью
-    wheel_c = (-1060, 820)                            # центр руля
+    pin, j2, j1, wheel_c = ((z, y) for _, y, z in g.COLUMN_POINTS)  # шестерня, кардан 2, кардан 1, руль
     o.append(line(vs(*pin), vs(*j2), VIO, 4))
     o.append(line(vs(*j2), vs(*j1), VIO, 4))
     o.append(line(vs(*j1), vs(*wheel_c), TXT, 6))

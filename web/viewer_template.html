@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Электробагги 3D</title>
+<style>
+  :root { --bg: #0f141b; --panel: rgba(17, 22, 30, 0.92); --line: rgba(255,255,255,0.1); --text: #e2e8f0;
+          --muted: #94a3b8; --accent: #38bdf8; --btn: #1e2633; --btn-hover: #273244; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+               font-family: 'Segoe UI', Roboto, Tahoma, sans-serif; }
+  #c { position: fixed; inset: 0; }
+  #panel { position: absolute; top: 14px; left: 14px; width: 320px; max-width: calc(100vw - 60px);
+           max-height: calc(100vh - 28px); overflow-y: auto; box-sizing: border-box; background: var(--panel);
+           backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 12px; padding: 16px; font-size: 13px; z-index: 2; }
+  #panel.collapsed .body { display: none; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  h1 { margin: 0; font-size: 16px; color: var(--accent); font-weight: 600; }
+  .icon-btn { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; cursor: pointer; padding: 2px 8px; }
+  .badge { display: inline-block; background: #0369a1; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 11px; margin: 8px 0 10px; }
+  .spec { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); margin-bottom: 3px; }
+  .spec b { color: var(--text); font-weight: 500; text-align: right; }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  button.t { display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box;
+             background: var(--btn); border: 1px solid #334155; color: var(--text); padding: 6px 10px; border-radius: 6px;
+             margin-bottom: 5px; cursor: pointer; font-size: 12.5px; }
+  button.t:hover, button.v:hover { background: var(--btn-hover); }
+  button.t.on { border-color: var(--accent); }
+  button.t .st { color: var(--muted); font-size: 11px; }
+  button.t.on .st { color: var(--accent); }
+  a.v { color: var(--text); display: inline-block; }
+  #panel { color-scheme: dark; scrollbar-width: thin; }
+  button.v { background: var(--btn); border: 1px solid #334155; color: var(--text); padding: 5px 9px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+  .note { margin-top: 12px; font-size: 11px; color: #64748b; line-height: 1.5; }
+  .note a { color: var(--accent); }
+  #tip { position: fixed; pointer-events: none; background: rgba(2,6,23,.9); color: #f8fafc; border: 1px solid #334155;
+         padding: 5px 9px; border-radius: 6px; font-size: 12px; display: none; z-index: 3; white-space: nowrap; }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="loading">Загрузка 3D-модели…</div>
+<canvas id="c"></canvas>
+<div id="tip"></div>
+<div id="panel">
+  <div class="head">
+    <h1>⚡ Электробагги 2-местный</h1>
+    <button class="icon-btn" id="collapse" title="Свернуть">–</button>
+  </div>
+  <div class="body">
+    <span class="badge">RWD • 2 поперечных рычага • Без трубогиба</span>
+    <div id="specs"></div>
+    <h2>Слои</h2>
+    <div id="layers"></div>
+    <h2>Свет</h2>
+    <button class="t" id="lightsBtn"><span>💡 Фары, LED-балка, фонари</span><span class="st">ВЫКЛ</span></button>
+    <button class="t" id="nightBtn"><span>🌙 Ночная сцена</span><span class="st">ВЫКЛ</span></button>
+    <h2>Вид</h2>
+    <div class="row" id="views"></div>
+    <h2>Экспорт</h2>
+    <div class="row">
+      <button class="v" id="glb">Скачать GLB</button>
+      <a class="v" style="text-decoration:none" href="buggy_frame_chassis.obj" download>OBJ</a>
+      <a class="v" style="text-decoration:none" href="buggy_frame_chassis.mtl" download>MTL</a>
+    </div>
+    <div class="note">
+      Наведите курсор на деталь — появится название узла.<br>
+      ЛКМ — вращение, ПКМ — сдвиг, колесо — масштаб.<br>
+      Геометрия — из <code>chassis_geometry.py</code>, как на листах 07–13.
+      <a href="drawings/07_suspension_corner_assembly.svg">Чертежи</a>
+    </div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+const G = /*%GEOMETRY%*/null;
+/*%SCENE_JS%*/
+
+const LAYERS = {
+  cage: ['Каркас безопасности 40х40', '#1e40af'],
+  base: ['Рама пола и подрамники', '#c2410c'],
+  suspension: ['Подвеска, колеса, тормоза, рулевое', '#15803d'],
+  drivetrain: ['Мотор, цепь, КПП 2108, приводы', '#64748b'],
+  batteries: ['АКБ и силовая электрика', '#6d28d9'],
+  interior: ['Сиденья, панель, педали, крыша', '#52525b'],
+  plow: ['Снегоотвал и лебедка', '#0891b2'],
+  lights: ['Фары и фонари', '#facc15'],
+};
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envTex;
+const DAY_BG = new THREE.Color(0x1a2230), NIGHT_BG = new THREE.Color(0x05070b);
+scene.background = DAY_BG.clone();
+
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 10, 40000);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.495;
+
+// земля
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000),
+  new THREE.MeshStandardMaterial({ color: 0x2a3340, roughness: 0.95, metalness: 0 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+const grid = new THREE.GridHelper(12000, 120, 0x3b4656, 0x303a48);
+grid.position.y = 1;
+scene.add(grid);
+
+const hemi = new THREE.HemisphereLight(0xdbeafe, 0x1e293b, 0.6);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(2500, 5000, 3000);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -3000, right: 3000, top: 3000, bottom: -3000, near: 100, far: 12000 });
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+const buggy = buildBuggy(THREE, G);
+scene.add(buggy.root);
+document.getElementById('loading').remove();
+
+// --- характеристики
+const S = G.specs;
+document.getElementById('specs').innerHTML = [
+  ['База / колея', `${G.wheelbase} / ${G.track} мм`],
+  ['Клиренс (пол / подрамник)', `280 / ${S.clearanceSub} мм`],
+  ['Подвеска', '2 рычага, кулак ВАЗ-2108'],
+  ['Мотор', 'QS138 70H, пик 13 кВт'],
+  ['Трансмиссия', 'цепь 15/15 → КПП 2108'],
+  ['Скорость', `${S.speed4} км/ч (4-я), ${S.speed5} (5-я)`],
+  ['Тяга на 2-й', `~${S.pull2} кгс`],
+  ['АКБ', '72V 48Ah ×2'],
+].map(([a, b]) => `<div class="spec"><span>${a}</span><b>${b}</b></div>`).join('');
+
+// --- слои
+const layersEl = document.getElementById('layers');
+for (const [key, [name, color]] of Object.entries(LAYERS)) {
+  if (!buggy.layers[key]) continue;
+  const b = document.createElement('button');
+  b.className = 't on';
+  b.innerHTML = `<span><span class="dot" style="background:${color}"></span>${name}</span><span class="st">ВКЛ</span>`;
+  b.onclick = () => {
+    const grp = buggy.layers[key];
+    grp.visible = !grp.visible;
+    b.classList.toggle('on', grp.visible);
+    b.querySelector('.st').textContent = grp.visible ? 'ВКЛ' : 'ВЫКЛ';
+  };
+  layersEl.appendChild(b);
+}
+
+// --- свет и ночь
+function toggleBtn(id, fn) {
+  const b = document.getElementById(id);
+  let on = false;
+  b.onclick = () => { on = !on; b.classList.toggle('on', on); b.querySelector('.st').textContent = on ? 'ВКЛ' : 'ВЫКЛ'; fn(on); };
+  return (v) => { if (v !== on) b.onclick(); };
+}
+const setLightsBtn = toggleBtn('lightsBtn', (on) => buggy.setLights(on));
+toggleBtn('nightBtn', (on) => {
+  scene.background = on ? NIGHT_BG.clone() : DAY_BG.clone();
+  for (const m of Object.values(buggy.materials)) m.envMapIntensity = on ? 0.05 : 1;
+  hemi.intensity = on ? 0.04 : 0.6;
+  sun.intensity = on ? 0.05 : 2.2;
+  ground.material.color.set(on ? 0x8a94a3 : 0x2a3340);  // «снег» ночью лучше показывает пятна фар
+  if (on) setLightsBtn(true);
+});
+
+// --- ракурсы
+const ZF = G.wheelbase / 2, ZR = -ZF;
+const VIEWS = {
+  'Общий': [[3400, 2100, 3800], [0, 500, 0]],
+  'Спереди': [[0, 900, ZF + 4200], [0, 500, 0]],
+  'Сбоку': [[5200, 800, 0], [0, 550, 0]],
+  'Сверху': [[0, 6500, 1], [0, 0, 0]],
+  'Перед. подвеска': [[1500, 700, ZF + 1300], [450, 330, ZF]],
+  'Задн. подвеска': [[1500, 900, ZR - 1100], [300, 380, ZR]],
+  'Силовой модуль': [[1200, 1400, ZR - 1500], [100, 550, ZR - 100]],
+  'Кабина': [[0, 1500, -1100], [-150, 700, 300]],
+};
+let anim = null;
+function goTo([p, t], instant) {
+  const from = { p: camera.position.clone(), t: controls.target.clone() };
+  const to = { p: new THREE.Vector3(...p), t: new THREE.Vector3(...t) };
+  if (instant) { camera.position.copy(to.p); controls.target.copy(to.t); return; }
+  anim = { from, to, t0: performance.now() };
+}
+const viewsEl = document.getElementById('views');
+for (const [name, v] of Object.entries(VIEWS)) {
+  const b = document.createElement('button');
+  b.className = 'v'; b.textContent = name; b.onclick = () => goTo(v);
+  viewsEl.appendChild(b);
+}
+const params = new URLSearchParams(location.search);
+goTo(VIEWS[params.get('view')] || VIEWS['Общий'], true);
+if (params.get('lights') === '1') setLightsBtn(true);
+if (params.get('night') === '1') document.getElementById('nightBtn').click();
+if (params.get('ui') === '0') document.getElementById('panel').style.display = 'none';
+
+document.getElementById('collapse').onclick = (e) => {
+  const p = document.getElementById('panel');
+  p.classList.toggle('collapsed');
+  e.target.textContent = p.classList.contains('collapsed') ? '+' : '–';
+};
+if (window.innerWidth < 700) document.getElementById('collapse').click();
+
+// --- подсказка с названием узла
+const tip = document.getElementById('tip');
+const ray = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let lastMove = 0;
+canvas.addEventListener('pointermove', (e) => {
+  if (performance.now() - lastMove < 40) return;
+  lastMove = performance.now();
+  mouse.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+  ray.setFromCamera(mouse, camera);
+  const hit = ray.intersectObject(buggy.root, true).find((h) => {
+    for (let o = h.object; o; o = o.parent) if (!o.visible) return false;
+    return h.object.userData.label;
+  });
+  if (hit) {
+    tip.textContent = hit.object.userData.label;
+    tip.style.display = 'block';
+    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+  } else tip.style.display = 'none';
+});
+canvas.addEventListener('pointerleave', () => { tip.style.display = 'none'; });
+
+// --- экспорт GLB
+document.getElementById('glb').onclick = () => {
+  new GLTFExporter().parse(buggy.root, (buf) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([buf], { type: 'model/gltf-binary' }));
+    a.download = 'electric_buggy.glb';
+    a.click();
+  }, (err) => alert('Ошибка экспорта: ' + err), { binary: true });
+};
+
+function resize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener('resize', resize);
+
+renderer.setAnimationLoop((now) => {
+  if (anim) {
+    const k = Math.min((now - anim.t0) / 700, 1), e = k * k * (3 - 2 * k);
+    camera.position.lerpVectors(anim.from.p, anim.to.p, e);
+    controls.target.lerpVectors(anim.from.t, anim.to.t, e);
+    if (k === 1) anim = null;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

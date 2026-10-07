@@ -1,0 +1,167 @@
+{
+ "wheelbase": 2050,
+ "track": 1300,
+ "halfTrack": 650.0,
+ "wheelR": 280,
+ "tireR": 289,
+ "tireW": 175,
+ "rimEt": 35,
+ "hubFaceX": 685.0,
+ "lbj": [
+  595.0,
+  165.0
+ ],
+ "ubj": [
+  525.0,
+  470.0
+ ],
+ "lowerInner": [
+  205.0,
+  230.0
+ ],
+ "upperInner": [
+  245.0,
+  490.0
+ ],
+ "lowerArmZ": [
+  120.0,
+  -120.0
+ ],
+ "upperArmZ": [
+  105.0,
+  -155.0
+ ],
+ "rearLowerArmZ": [
+  80.0,
+  -200.0
+ ],
+ "rearUpperArmZ": [
+  200.0,
+  20.0
+ ],
+ "casterDeg": 4.685899839502703,
+ "shockLower": [
+  458.5,
+  187.75
+ ],
+ "shockUpper": [
+  385.43958752890035,
+  480.77930933535094
+ ],
+ "shockZ": -25,
+ "rearShockZ": -100.0,
+ "shockBarY": 530.779309335351,
+ "steerZ": -120,
+ "rearToeZ": 120.0,
+ "steerArmY": 400,
+ "steerPoint": [
+  509.39344262295083,
+  400
+ ],
+ "kingpinXAtSteer": 541.0655737704918,
+ "tieRodInner": [
+  214.8532632852591,
+  427.6257104021753
+ ],
+ "lugBolts": [
+  [
+   520.0,
+   345.0
+  ],
+  [
+   511.0,
+   405.0
+  ]
+ ],
+ "lugThickness": 28.0,
+ "adapterPlate": 6.0,
+ "adapterOutline": [
+  [
+   492,
+   322
+  ],
+  [
+   546,
+   322
+  ],
+  [
+   543,
+   428
+  ],
+  [
+   547,
+   470
+  ],
+  [
+   538,
+   494
+  ],
+  [
+   512,
+   494
+  ],
+  [
+   503,
+   470
+  ],
+  [
+   486,
+   428
+  ]
+ ],
+ "outerCV": [
+  575.0,
+  280.0
+ ],
+ "innerCVX": 130.0,
+ "lowerRail": [
+  160.0,
+  255.0
+ ],
+ "upperRail": [
+  205.0,
+  500.0
+ ],
+ "rearRailY": 205.0,
+ "floorY": 305,
+ "floorZ": 625.0,
+ "frameHalfW": 550,
+ "roofY": 1430,
+ "roofHalfW": 480,
+ "aZ": 300,
+ "bZ": -550,
+ "columnPoints": [
+  [
+   -110,
+   398,
+   -130
+  ],
+  [
+   -200,
+   560,
+   -430
+  ],
+  [
+   -260,
+   690,
+   -760
+  ],
+  [
+   -275,
+   820,
+   -1060
+  ]
+ ],
+ "inputAxis": [
+  150.0,
+  -135.0
+ ],
+ "chainCD": 293.6875,
+ "sprocketTeeth": 15,
+ "specs": {
+  "speed4": 55,
+  "speed5": 66,
+  "pull2": 330,
+  "clearanceSub": 180
+ }
+}

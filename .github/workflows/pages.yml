@@ -23,7 +23,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Regenerate 3D model and drawings from chassis_geometry.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install three.js for OBJ export
+        run: npm ci --prefix tools --no-audit --no-fund
+
+      - name: Regenerate 3D model, OBJ and drawings from chassis_geometry.py
         run: |
           python3 generate_3d.py
           python3 generate_assembly_drawings.py
@@ -33,7 +42,7 @@ jobs:
           mkdir -p _site
           cp viewer.html _site/index.html
           cp -r drawings _site/drawings
-          cp buggy_frame_chassis.obj _site/
+          cp buggy_frame_chassis.obj buggy_frame_chassis.mtl _site/
 
       - uses: actions/configure-pages@v5
 

@@ -1,0 +1,9 @@
+{
+  "name": "electric-buggy-tools",
+  "private": true,
+  "type": "module",
+  "description": "Экспорт детальной 3D-сцены (web/buggy_scene.js) в OBJ/MTL",
+  "dependencies": {
+    "three": "0.160.0"
+  }
+}

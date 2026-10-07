@@ -5,3 +5,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+tools/node_modules/
+buggy_frame_chassis.obj
+buggy_frame_chassis.mtl
