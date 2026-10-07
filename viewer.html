@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Модель: Двухместный Электробагги (RWD, IRS, Модульная АКБ)</title>
+    <title>3D Модель: Двухместный Электробагги</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background: #1a1e24; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; }
+        body { margin: 0; padding: 0; overflow: hidden; background: #13171f; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; }
         #canvas-container { width: 100vw; height: 100vh; display: block; }
         #ui-panel {
-            position: absolute; top: 15px; left: 15px; width: 330px;
+            position: absolute; top: 15px; left: 15px; width: 330px; max-width: calc(100vw - 62px);
+            max-height: calc(100vh - 66px); overflow-y: auto;
             background: rgba(20, 24, 32, 0.92); backdrop-filter: blur(8px);
             padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; font-size: 13px;
@@ -16,21 +17,19 @@
         h2 { margin: 0 0 8px 0; font-size: 17px; color: #38bdf8; font-weight: 600; }
         .badge { display: inline-block; background: #0284c7; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 11px; margin-bottom: 12px; }
         .specs { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
-        .spec-item { display: flex; justify-content: space-between; margin-bottom: 4px; color: #94a3b8; }
-        .spec-val { color: #f1f5f9; font-weight: 500; }
-        .controls-group { margin-top: 10px; }
+        .spec-item { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; color: #94a3b8; }
+        .spec-val { color: #f1f5f9; font-weight: 500; text-align: right; }
         .toggle-btn {
             display: flex; align-items: center; justify-content: space-between;
             background: #27303f; border: 1px solid #3b4758; color: #e2e8f0;
             padding: 7px 12px; border-radius: 6px; margin-bottom: 6px; cursor: pointer; width: 100%; box-sizing: border-box;
-            transition: all 0.2s;
         }
         .toggle-btn:hover { background: #334155; }
         .toggle-btn.active { border-color: #38bdf8; background: #1e293b; }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .legend { margin-top: 15px; font-size: 11px; color: #64748b; line-height: 1.4; }
+        .legend { margin-top: 15px; font-size: 11px; color: #64748b; line-height: 1.5; }
+        .legend a { color: #38bdf8; }
     </style>
-    <!-- Three.js + OrbitControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -40,322 +39,136 @@
         <span class="badge">RWD • IRS • Без трубогиба</span>
         <div class="specs">
             <div class="spec-item"><span>База / Колея:</span><span class="spec-val">2050 мм / 1300 мм</span></div>
-            <div class="spec-item"><span>Клиренс:</span><span class="spec-val">280 мм</span></div>
-            <div class="spec-item"><span>Мотор / Мощность:</span><span class="spec-val">QS138 70H (пик 13 кВт)</span></div>
-            <div class="spec-item"><span>Скорость:</span><span class="spec-val">52 - 60 км/ч</span></div>
-            <div class="spec-item"><span>Батареи (2 отсека):</span><span class="spec-val">72V 48Ah + 48Ah (50+50 км)</span></div>
-            <div class="spec-item"><span>Сила тяги (пик):</span><span class="spec-val">2345 Н (~240 кгс)</span></div>
+            <div class="spec-item"><span>Клиренс (пол / подрамник):</span><span class="spec-val">280 / 180 мм</span></div>
+            <div class="spec-item"><span>Подвеска:</span><span class="spec-val">2 поперечных рычага, кулак 2108</span></div>
+            <div class="spec-item"><span>Мотор:</span><span class="spec-val">QS138 70H (пик 13 кВт)</span></div>
+            <div class="spec-item"><span>Трансмиссия:</span><span class="spec-val">цепь 15/15 → КПП 2108</span></div>
+            <div class="spec-item"><span>Скорость:</span><span class="spec-val">55 км/ч (4-я), 66 (5-я)</span></div>
+            <div class="spec-item"><span>Тяга (2-я передача):</span><span class="spec-val">~330 кгс</span></div>
+            <div class="spec-item"><span>Батареи:</span><span class="spec-val">72V 48Ah + 48Ah</span></div>
         </div>
         <div class="controls-group">
             <button class="toggle-btn active" onclick="toggleLayer('cage')">
                 <span><span class="color-dot" style="background:#38bdf8"></span>Каркас безопасности (40х40)</span><span id="st-cage">ВКЛ</span>
             </button>
             <button class="toggle-btn active" onclick="toggleLayer('base')">
-                <span><span class="color-dot" style="background:#f59e0b"></span>Нижняя рама (50х50)</span><span id="st-base">ВКЛ</span>
+                <span><span class="color-dot" style="background:#f59e0b"></span>Рама пола и подрамники (50х50)</span><span id="st-base">ВКЛ</span>
             </button>
             <button class="toggle-btn active" onclick="toggleLayer('suspension')">
-                <span><span class="color-dot" style="background:#10b981"></span>Рычаги IRS и колеса</span><span id="st-suspension">ВКЛ</span>
+                <span><span class="color-dot" style="background:#10b981"></span>Подвеска, колеса, рулевое</span><span id="st-suspension">ВКЛ</span>
             </button>
             <button class="toggle-btn active" onclick="toggleLayer('batteries')">
                 <span><span class="color-dot" style="background:#a855f7"></span>Модули АКБ (2 шт по центру)</span><span id="st-batteries">ВКЛ</span>
             </button>
             <button class="toggle-btn active" onclick="toggleLayer('drivetrain')">
-                <span><span class="color-dot" style="background:#ef4444"></span>Мотор, цепь, редуктор ВАЗ</span><span id="st-drivetrain">ВКЛ</span>
+                <span><span class="color-dot" style="background:#ef4444"></span>Мотор, цепь, КПП 2108, приводы</span><span id="st-drivetrain">ВКЛ</span>
             </button>
             <button class="toggle-btn active" onclick="toggleLayer('plow')">
                 <span><span class="color-dot" style="background:#06b6d4"></span>Крепеж снегоотвала</span><span id="st-plow">ВКЛ</span>
             </button>
         </div>
         <div class="legend">
-            💡 <b>Управление:</b> ЛКМ — вращение, ПКМ — перемещение, Колесо — масштаб.
+            💡 ЛКМ — вращение, ПКМ — перемещение, колесо — масштаб.<br>
+            Геометрия подвески и рулевого — по листам 07–13.
+            <a href="drawings/07_suspension_corner_assembly.svg">Чертежи</a> ·
+            <a href="buggy_frame_chassis.obj">OBJ</a>
         </div>
     </div>
     <div id="canvas-container"></div>
-
     <script>
+        const PARTS = [{"t":"beam","g":"base","a":[-550,305,-625.0],"b":[-550,305,625.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[550,305,-625.0],"b":[550,305,625.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-550,305,-625.0],"b":[550,305,-625.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-550,305,-300],"b":[550,305,-300],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-550,305,0],"b":[550,305,0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-550,305,300],"b":[550,305,300],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-550,305,625.0],"b":[550,305,625.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-160.0,255.0,625.0],"b":[-160.0,255.0,1400.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-205.0,500.0,795.0],"b":[-205.0,500.0,1225.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-160.0,280.0,795.0],"b":[-205.0,480.0,795.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-160.0,280.0,1225.0],"b":[-205.0,480.0,1225.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-205.0,500.0,795.0],"b":[-550,305,625.0],"w":40,"h":40,"m":"base"},{"t":"box","g":"base","c":[-200.0,230.0,1145.0],"s":[40,48,50],"m":"base"},{"t":"box","g":"base","c":[-200.0,230.0,905.0],"s":[40,48,50],"m":"base"},{"t":"box","g":"base","c":[-240.0,490.0,1130.0],"s":[40,48,50],"m":"base"},{"t":"box","g":"base","c":[-240.0,490.0,870.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[160.0,255.0,625.0],"b":[160.0,255.0,1400.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[205.0,500.0,795.0],"b":[205.0,500.0,1225.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[160.0,280.0,795.0],"b":[205.0,480.0,795.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[160.0,280.0,1225.0],"b":[205.0,480.0,1225.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[205.0,500.0,795.0],"b":[550,305,625.0],"w":40,"h":40,"m":"base"},{"t":"box","g":"base","c":[200.0,230.0,1145.0],"s":[40,48,50],"m":"base"},{"t":"box","g":"base","c":[200.0,230.0,905.0],"s":[40,48,50],"m":"base"},{"t":"box","g":"base","c":[240.0,490.0,1130.0],"s":[40,48,50],"m":"base"},{"t":"box","g":"base","c":[240.0,490.0,870.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[-185.0,255.0,1400.0],"b":[185.0,255.0,1400.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-205.0,500.0,1225.0],"b":[205.0,500.0,1225.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-410.43958752890035,530.779309335351,1000.0],"b":[410.43958752890035,530.779309335351,1000.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-205.0,500.0,1000.0],"b":[-205.0,530.779309335351,1000.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[205.0,500.0,1000.0],"b":[205.0,530.779309335351,1000.0],"w":40,"h":40,"m":"base"},{"t":"box","g":"base","c":[0,285,735.0],"s":[700,3,200],"m":"steel"},{"t":"beam","g":"base","a":[-160.0,205.0,-625.0],"b":[-160.0,205.0,-1325.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-160.0,205.0,-625.0],"b":[-550,305,-625.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-300,620,-625.0],"b":[-300,620,-1325.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-160.0,230.0,-1325.0],"b":[-300,600,-1325.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[-160.0,230.0,-865.0],"b":[-300,600,-865.0],"w":40,"h":40,"m":"base"},{"t":"box","g":"base","c":[-200.0,230.0,-945.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[-160.0,205.0,-945.0],"b":[-190.0,230.0,-945.0],"w":30,"h":30,"m":"base"},{"t":"box","g":"base","c":[-200.0,230.0,-1225.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[-160.0,205.0,-1225.0],"b":[-190.0,230.0,-1225.0],"w":30,"h":30,"m":"base"},{"t":"box","g":"base","c":[-240.0,490.0,-825.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[-300,620,-825.0],"b":[-250.0,510.0,-825.0],"w":30,"h":30,"m":"base"},{"t":"box","g":"base","c":[-240.0,490.0,-1005.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[-300,620,-1005.0],"b":[-250.0,510.0,-1005.0],"w":30,"h":30,"m":"base"},{"t":"beam","g":"base","a":[-300,620,-1125.0],"b":[-385.43958752890035,500.77930933535094,-1125.0],"w":30,"h":30,"m":"base"},{"t":"beam","g":"base","a":[-160.0,205.0,-905.0],"b":[-214.8532632852591,427.6257104021753,-905.0],"w":30,"h":30,"m":"base"},{"t":"beam","g":"base","a":[160.0,205.0,-625.0],"b":[160.0,205.0,-1325.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[160.0,205.0,-625.0],"b":[550,305,-625.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[300,620,-625.0],"b":[300,620,-1325.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[160.0,230.0,-1325.0],"b":[300,600,-1325.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"base","a":[160.0,230.0,-865.0],"b":[300,600,-865.0],"w":40,"h":40,"m":"base"},{"t":"box","g":"base","c":[200.0,230.0,-945.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[160.0,205.0,-945.0],"b":[190.0,230.0,-945.0],"w":30,"h":30,"m":"base"},{"t":"box","g":"base","c":[200.0,230.0,-1225.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[160.0,205.0,-1225.0],"b":[190.0,230.0,-1225.0],"w":30,"h":30,"m":"base"},{"t":"box","g":"base","c":[240.0,490.0,-825.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[300,620,-825.0],"b":[250.0,510.0,-825.0],"w":30,"h":30,"m":"base"},{"t":"box","g":"base","c":[240.0,490.0,-1005.0],"s":[40,48,50],"m":"base"},{"t":"beam","g":"base","a":[300,620,-1005.0],"b":[250.0,510.0,-1005.0],"w":30,"h":30,"m":"base"},{"t":"beam","g":"base","a":[300,620,-1125.0],"b":[385.43958752890035,500.77930933535094,-1125.0],"w":30,"h":30,"m":"base"},{"t":"beam","g":"base","a":[160.0,205.0,-905.0],"b":[214.8532632852591,427.6257104021753,-905.0],"w":30,"h":30,"m":"base"},{"t":"beam","g":"base","a":[-185.0,205.0,-1325.0],"b":[185.0,205.0,-1325.0],"w":50,"h":50,"m":"base"},{"t":"beam","g":"base","a":[-300,620,-1325.0],"b":[300,620,-1325.0],"w":40,"h":40,"m":"base"},{"t":"beam","g":"cage","a":[-550,305,-550],"b":[-480,1430,-550],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-550,305,300],"b":[-480,1430,200],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-480,1430,-550],"b":[-480,1430,200],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-480,1430,-550],"b":[-300,620,-875.0],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-550,305,300],"b":[-205.0,500.0,1225.0],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-630,655,-550],"b":[-630,655,300],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-550,305,-550],"b":[-630,655,-550],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-550,305,300],"b":[-630,655,300],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-550,305,-550],"b":[480,1430,-550],"w":30,"h":30,"m":"cage"},{"t":"beam","g":"cage","a":[550,305,-550],"b":[480,1430,-550],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[550,305,300],"b":[480,1430,200],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[480,1430,-550],"b":[480,1430,200],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[480,1430,-550],"b":[300,620,-875.0],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[550,305,300],"b":[205.0,500.0,1225.0],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[630,655,-550],"b":[630,655,300],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[550,305,-550],"b":[630,655,-550],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[550,305,300],"b":[630,655,300],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[550,305,-550],"b":[-480,1430,-550],"w":30,"h":30,"m":"cage"},{"t":"beam","g":"cage","a":[-480,1430,200],"b":[480,1430,200],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-480,1430,-550],"b":[480,1430,-550],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"cage","a":[-205.0,500.0,1225.0],"b":[205.0,500.0,1225.0],"w":40,"h":40,"m":"cage"},{"t":"beam","g":"suspension","a":[-205.0,230.0,1145.0],"b":[-595.0,165.0,1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[-205.0,230.0,905.0],"b":[-595.0,165.0,1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[-245.0,490.0,1130.0],"b":[-525.0,470.0,1000.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[-245.0,490.0,870.0],"b":[-525.0,470.0,1000.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[-458.5,187.75,1067.0],"b":[-458.5,187.75,983.0],"w":25,"h":25,"m":"arm"},{"t":"beam","g":"suspension","a":[-458.5,187.75,1000.0],"b":[-418.3167731408952,348.916120134443,1000.0],"w":44,"h":44,"m":"rim"},{"t":"beam","g":"suspension","a":[-418.3167731408952,348.916120134443,1000.0],"b":[-385.43958752890035,480.77930933535094,1000.0],"w":16,"h":16,"m":"rim"},{"t":"beam","g":"suspension","a":[-449.732750503468,222.91351712024212,1000.0],"b":[-395.6680452748543,439.7552060284018,1000.0],"w":64,"h":64,"m":"spring"},{"t":"beam","g":"suspension","a":[-595.0,165.0,1025.0],"b":[-615,280,1025.0],"w":50,"h":50,"m":"steel"},{"t":"beam","g":"suspension","a":[-615,280,1025.0],"b":[-525,380,1025.0],"w":45,"h":45,"m":"steel"},{"t":"beam","g":"suspension","a":[-518,325,1025.0],"b":[-525.0,490.0,1000.0],"w":40,"h":54,"m":"adapter"},{"t":"beam","g":"suspension","a":[-541.0655737704918,400,1005.0],"b":[-509.39344262295083,400,905.0],"w":22,"h":22,"m":"adapter"},{"t":"beam","g":"suspension","a":[-214.8532632852591,427.6257104021753,905.0],"b":[-509.39344262295083,400,905.0],"w":16,"h":16,"m":"rim"},{"t":"cyl","g":"suspension","c":[-645,280,1025.0],"r":45,"l":80,"ax":"x","m":"steel","seg":20},{"t":"cyl","g":"suspension","c":[-679.0,280,1025.0],"r":119,"l":12,"ax":"x","m":"rim","seg":32},{"t":"box","g":"suspension","c":[-679.0,375,965.0],"s":[50,50,70],"m":"red"},{"t":"cyl","g":"suspension","c":[-650.0,280,1025.0],"r":289,"l":175,"ax":"x","m":"tire","seg":32},{"t":"cyl","g":"suspension","c":[-650.0,280,1025.0],"r":165,"l":177,"ax":"x","m":"rim","seg":24},{"t":"beam","g":"suspension","a":[-205.0,230.0,-945.0],"b":[-595.0,165.0,-1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[-205.0,230.0,-1225.0],"b":[-595.0,165.0,-1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[-245.0,490.0,-825.0],"b":[-525.0,470.0,-1025.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[-245.0,490.0,-1005.0],"b":[-525.0,470.0,-1025.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[-458.5,187.75,-997.0],"b":[-458.5,187.75,-1095.0],"w":25,"h":25,"m":"arm"},{"t":"beam","g":"suspension","a":[-458.5,187.75,-1095.0],"b":[-458.5,187.75,-1125.0],"w":25,"h":25,"m":"arm"},{"t":"beam","g":"suspension","a":[-458.5,187.75,-1125.0],"b":[-418.3167731408952,348.916120134443,-1125.0],"w":44,"h":44,"m":"rim"},{"t":"beam","g":"suspension","a":[-418.3167731408952,348.916120134443,-1125.0],"b":[-385.43958752890035,480.77930933535094,-1125.0],"w":16,"h":16,"m":"rim"},{"t":"beam","g":"suspension","a":[-449.732750503468,222.91351712024212,-1125.0],"b":[-395.6680452748543,439.7552060284018,-1125.0],"w":64,"h":64,"m":"spring"},{"t":"beam","g":"suspension","a":[-595.0,165.0,-1025.0],"b":[-615,280,-1025.0],"w":50,"h":50,"m":"steel"},{"t":"beam","g":"suspension","a":[-615,280,-1025.0],"b":[-525,380,-1025.0],"w":45,"h":45,"m":"steel"},{"t":"beam","g":"suspension","a":[-518,325,-1025.0],"b":[-525.0,490.0,-1025.0],"w":40,"h":54,"m":"adapter"},{"t":"beam","g":"suspension","a":[-541.0655737704918,400,-1005.0],"b":[-509.39344262295083,400,-905.0],"w":22,"h":22,"m":"adapter"},{"t":"beam","g":"suspension","a":[-214.8532632852591,427.6257104021753,-905.0],"b":[-509.39344262295083,400,-905.0],"w":16,"h":16,"m":"rim"},{"t":"cyl","g":"suspension","c":[-645,280,-1025.0],"r":45,"l":80,"ax":"x","m":"steel","seg":20},{"t":"cyl","g":"suspension","c":[-679.0,280,-1025.0],"r":119,"l":12,"ax":"x","m":"rim","seg":32},{"t":"box","g":"suspension","c":[-679.0,375,-1085.0],"s":[50,50,70],"m":"red"},{"t":"cyl","g":"suspension","c":[-650.0,280,-1025.0],"r":289,"l":175,"ax":"x","m":"tire","seg":32},{"t":"cyl","g":"suspension","c":[-650.0,280,-1025.0],"r":165,"l":177,"ax":"x","m":"rim","seg":24},{"t":"beam","g":"suspension","a":[205.0,230.0,1145.0],"b":[595.0,165.0,1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[205.0,230.0,905.0],"b":[595.0,165.0,1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[245.0,490.0,1130.0],"b":[525.0,470.0,1000.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[245.0,490.0,870.0],"b":[525.0,470.0,1000.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[458.5,187.75,1067.0],"b":[458.5,187.75,983.0],"w":25,"h":25,"m":"arm"},{"t":"beam","g":"suspension","a":[458.5,187.75,1000.0],"b":[418.3167731408952,348.916120134443,1000.0],"w":44,"h":44,"m":"rim"},{"t":"beam","g":"suspension","a":[418.3167731408952,348.916120134443,1000.0],"b":[385.43958752890035,480.77930933535094,1000.0],"w":16,"h":16,"m":"rim"},{"t":"beam","g":"suspension","a":[449.732750503468,222.91351712024212,1000.0],"b":[395.6680452748543,439.7552060284018,1000.0],"w":64,"h":64,"m":"spring"},{"t":"beam","g":"suspension","a":[595.0,165.0,1025.0],"b":[615,280,1025.0],"w":50,"h":50,"m":"steel"},{"t":"beam","g":"suspension","a":[615,280,1025.0],"b":[525,380,1025.0],"w":45,"h":45,"m":"steel"},{"t":"beam","g":"suspension","a":[518,325,1025.0],"b":[525.0,490.0,1000.0],"w":40,"h":54,"m":"adapter"},{"t":"beam","g":"suspension","a":[541.0655737704918,400,1005.0],"b":[509.39344262295083,400,905.0],"w":22,"h":22,"m":"adapter"},{"t":"beam","g":"suspension","a":[214.8532632852591,427.6257104021753,905.0],"b":[509.39344262295083,400,905.0],"w":16,"h":16,"m":"rim"},{"t":"cyl","g":"suspension","c":[645,280,1025.0],"r":45,"l":80,"ax":"x","m":"steel","seg":20},{"t":"cyl","g":"suspension","c":[679.0,280,1025.0],"r":119,"l":12,"ax":"x","m":"rim","seg":32},{"t":"box","g":"suspension","c":[679.0,375,965.0],"s":[50,50,70],"m":"red"},{"t":"cyl","g":"suspension","c":[650.0,280,1025.0],"r":289,"l":175,"ax":"x","m":"tire","seg":32},{"t":"cyl","g":"suspension","c":[650.0,280,1025.0],"r":165,"l":177,"ax":"x","m":"rim","seg":24},{"t":"beam","g":"suspension","a":[205.0,230.0,-945.0],"b":[595.0,165.0,-1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[205.0,230.0,-1225.0],"b":[595.0,165.0,-1025.0],"w":30,"h":30,"m":"arm"},{"t":"beam","g":"suspension","a":[245.0,490.0,-825.0],"b":[525.0,470.0,-1025.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[245.0,490.0,-1005.0],"b":[525.0,470.0,-1025.0],"w":25,"h":25,"m":"upper"},{"t":"beam","g":"suspension","a":[458.5,187.75,-997.0],"b":[458.5,187.75,-1095.0],"w":25,"h":25,"m":"arm"},{"t":"beam","g":"suspension","a":[458.5,187.75,-1095.0],"b":[458.5,187.75,-1125.0],"w":25,"h":25,"m":"arm"},{"t":"beam","g":"suspension","a":[458.5,187.75,-1125.0],"b":[418.3167731408952,348.916120134443,-1125.0],"w":44,"h":44,"m":"rim"},{"t":"beam","g":"suspension","a":[418.3167731408952,348.916120134443,-1125.0],"b":[385.43958752890035,480.77930933535094,-1125.0],"w":16,"h":16,"m":"rim"},{"t":"beam","g":"suspension","a":[449.732750503468,222.91351712024212,-1125.0],"b":[395.6680452748543,439.7552060284018,-1125.0],"w":64,"h":64,"m":"spring"},{"t":"beam","g":"suspension","a":[595.0,165.0,-1025.0],"b":[615,280,-1025.0],"w":50,"h":50,"m":"steel"},{"t":"beam","g":"suspension","a":[615,280,-1025.0],"b":[525,380,-1025.0],"w":45,"h":45,"m":"steel"},{"t":"beam","g":"suspension","a":[518,325,-1025.0],"b":[525.0,490.0,-1025.0],"w":40,"h":54,"m":"adapter"},{"t":"beam","g":"suspension","a":[541.0655737704918,400,-1005.0],"b":[509.39344262295083,400,-905.0],"w":22,"h":22,"m":"adapter"},{"t":"beam","g":"suspension","a":[214.8532632852591,427.6257104021753,-905.0],"b":[509.39344262295083,400,-905.0],"w":16,"h":16,"m":"rim"},{"t":"cyl","g":"suspension","c":[645,280,-1025.0],"r":45,"l":80,"ax":"x","m":"steel","seg":20},{"t":"cyl","g":"suspension","c":[679.0,280,-1025.0],"r":119,"l":12,"ax":"x","m":"rim","seg":32},{"t":"box","g":"suspension","c":[679.0,375,-1085.0],"s":[50,50,70],"m":"red"},{"t":"cyl","g":"suspension","c":[650.0,280,-1025.0],"r":289,"l":175,"ax":"x","m":"tire","seg":32},{"t":"cyl","g":"suspension","c":[650.0,280,-1025.0],"r":165,"l":177,"ax":"x","m":"rim","seg":24},{"t":"cyl","g":"suspension","c":[0,427.6257104021753,905.0],"r":22,"l":379.7065265705182,"ax":"x","m":"steel","seg":20},{"t":"beam","g":"suspension","a":[-110,397.6257104021753,895.0],"b":[-200,560,595.0],"w":20,"h":20,"m":"rim"},{"t":"beam","g":"suspension","a":[-200,560,595.0],"b":[-260,690,265.0],"w":20,"h":20,"m":"rim"},{"t":"beam","g":"suspension","a":[-260,690,265.0],"b":[-275,820,-35.0],"w":20,"h":20,"m":"rim"},{"t":"cyl","g":"suspension","c":[-275,820,-35.0],"r":175,"l":25,"ax":"steer","m":"seat","seg":28},{"t":"box","g":"batteries","c":[0,435,100],"s":[320,220,420],"m":"bat"},{"t":"box","g":"batteries","c":[0,315,100],"s":[340,10,440],"m":"base"},{"t":"box","g":"batteries","c":[0,435,-350],"s":[320,220,420],"m":"bat"},{"t":"box","g":"batteries","c":[0,315,-350],"s":[340,10,440],"m":"base"},{"t":"box","g":"base","c":[-280,465,-100],"s":[420,50,440],"m":"seat"},{"t":"box","g":"base","c":[-280,735,-330],"s":[420,550,50],"m":"seat"},{"t":"box","g":"base","c":[280,465,-100],"s":[420,50,440],"m":"seat"},{"t":"box","g":"base","c":[280,735,-330],"s":[420,550,50],"m":"seat"},{"t":"cyl","g":"drivetrain","c":[0,280,-1025.0],"r":100,"l":240,"ax":"x","m":"gearbox","seg":20},{"t":"box","g":"drivetrain","c":[-120,430,-1160.0],"s":[360,260,180],"m":"gearbox"},{"t":"box","g":"drivetrain","c":[90,390,-1160.0],"s":[60,260,200],"m":"gearbox"},{"t":"box","g":"drivetrain","c":[125,420,-1160.0],"s":[10,400,260],"m":"base"},{"t":"cyl","g":"drivetrain","c":[205,430,-1160.0],"r":12,"l":150,"ax":"x","m":"rim","seg":20},{"t":"box","g":"drivetrain","c":[160,430,-1160.0],"s":[30,80,80],"m":"steel"},{"t":"box","g":"drivetrain","c":[230,430,-1160.0],"s":[30,80,80],"m":"steel"},{"t":"cyl","g":"drivetrain","c":[255,430,-1160.0],"r":62,"l":8,"ax":"x","m":"spring","seg":20},{"t":"cyl","g":"drivetrain","c":[270,430,-1160.0],"r":100,"l":6,"ax":"x","m":"rim","seg":32},{"t":"cyl","g":"drivetrain","c":[190,723.6875,-1160.0],"r":103,"l":140,"ax":"x","m":"motor","seg":28},{"t":"cyl","g":"drivetrain","c":[255,723.6875,-1160.0],"r":62,"l":8,"ax":"x","m":"spring","seg":20},{"t":"beam","g":"drivetrain","a":[255,430,-1222.0],"b":[255,723.6875,-1222.0],"w":8,"h":8,"m":"spring"},{"t":"beam","g":"drivetrain","a":[255,430,-1098.0],"b":[255,723.6875,-1098.0],"w":8,"h":8,"m":"spring"},{"t":"beam","g":"drivetrain","a":[-130.0,280,-1025.0],"b":[-575.0,280,-1025.0],"w":26,"h":26,"m":"rim"},{"t":"cyl","g":"drivetrain","c":[-130.0,280,-1025.0],"r":45,"l":80,"ax":"x","m":"seat","seg":20},{"t":"cyl","g":"drivetrain","c":[-545.0,280,-1025.0],"r":42,"l":70,"ax":"x","m":"seat","seg":20},{"t":"beam","g":"drivetrain","a":[130.0,280,-1025.0],"b":[575.0,280,-1025.0],"w":26,"h":26,"m":"rim"},{"t":"cyl","g":"drivetrain","c":[130.0,280,-1025.0],"r":45,"l":80,"ax":"x","m":"seat","seg":20},{"t":"cyl","g":"drivetrain","c":[545.0,280,-1025.0],"r":42,"l":70,"ax":"x","m":"seat","seg":20},{"t":"box","g":"drivetrain","c":[0,980,-550],"s":[200,90,280],"m":"rim"},{"t":"beam","g":"plow","a":[0,255.0,1400.0],"b":[0,255.0,1650.0],"w":60,"h":60,"m":"plow"},{"t":"beam","g":"plow","a":[-350,200,2000.0],"b":[0,255.0,1650.0],"w":50,"h":50,"m":"plow"},{"t":"beam","g":"plow","a":[350,200,2000.0],"b":[0,255.0,1650.0],"w":50,"h":50,"m":"plow"},{"t":"beam","g":"plow","a":[0,26.891108675446503,2175.0],"b":[0,61.88444490835769,2125.024336609711],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,61.88444490835769,2125.024336609711],"b":[0,105.02433660971127,2081.8844449083576],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,105.02433660971127,2081.8844449083576],"b":[0,155.00000000000003,2046.8911086754465],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,155.00000000000003,2046.8911086754465],"b":[0,210.29294983601596,2021.107582724932],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,210.29294983601596,2021.107582724932],"b":[0,269.22313781657436,2005.3172864457272],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,269.22313781657436,2005.3172864457272],"b":[0,330.0,2000.0],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,330.0,2000.0],"b":[0,390.77686218342564,2005.3172864457272],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[0,390.77686218342564,2005.3172864457272],"b":[0,449.70705016398404,2021.107582724932],"w":1400,"h":5,"m":"plow"},{"t":"beam","g":"plow","a":[-700,20,2175.0],"b":[700,20,2175.0],"w":20,"h":20,"m":"seat"},{"t":"cyl","g":"plow","c":[0,315.0,1360.0],"r":55,"l":140,"ax":"x","m":"rim","seg":20}];
+
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x13171f);
-        scene.fog = new THREE.FogExp2(0x13171f, 0.00015);
+        scene.fog = new THREE.FogExp2(0x13171f, 0.00012);
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 10000);
-        camera.position.set(2800, 1800, 3200);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 12000);
+        camera.position.set(2900, 1900, 3300);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.target.set(0, 500, 0);
+        controls.target.set(0, 450, 0);
 
-        // Сетка земли
-        const grid = new THREE.GridHelper(6000, 60, 0x334155, 0x1e293b);
-        grid.position.y = 0;
-        scene.add(grid);
+        scene.add(new THREE.GridHelper(6000, 60, 0x334155, 0x1e293b));
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 0.7));
+        const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+        sun.position.set(2000, 4000, 2000);
+        sun.castShadow = true;
+        sun.shadow.mapSize.set(2048, 2048);
+        Object.assign(sun.shadow.camera, { left: -2500, right: 2500, top: 2500, bottom: -2500, far: 9000 });
+        scene.add(sun);
+        const fill = new THREE.DirectionalLight(0x38bdf8, 0.4);
+        fill.position.set(-2000, 2000, -2000);
+        scene.add(fill);
 
-        // Освещение
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.7);
-        scene.add(hemiLight);
-
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        dirLight.position.set(2000, 4000, 2000);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.4);
-        dirLight2.position.set(-2000, 2000, -2000);
-        scene.add(dirLight2);
-
-        // Группы слоев
-        const groups = {
-            base: new THREE.Group(),
-            cage: new THREE.Group(),
-            suspension: new THREE.Group(),
-            batteries: new THREE.Group(),
-            drivetrain: new THREE.Group(),
-            plow: new THREE.Group()
+        const MAT = {
+            base: new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4, metalness: 0.6 }),
+            cage: new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.7 }),
+            arm: new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5, metalness: 0.5 }),
+            upper: new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.5, metalness: 0.5 }),
+            tire: new THREE.MeshStandardMaterial({ color: 0x1e2229, roughness: 0.9, metalness: 0.1 }),
+            rim: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.2, metalness: 0.8 }),
+            steel: new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.4, metalness: 0.7 }),
+            adapter: new THREE.MeshStandardMaterial({ color: 0xa78bfa, roughness: 0.4, metalness: 0.5 }),
+            spring: new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4, metalness: 0.6 }),
+            bat: new THREE.MeshStandardMaterial({ color: 0x9333ea, roughness: 0.3, metalness: 0.4 }),
+            motor: new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.3, metalness: 0.8 }),
+            gearbox: new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.5, metalness: 0.6 }),
+            red: new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.3, metalness: 0.8 }),
+            plow: new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4, metalness: 0.6 }),
+            seat: new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9, metalness: 0.0 })
         };
-        Object.values(groups).forEach(g => scene.add(g));
+        MAT.tire.side = THREE.DoubleSide;
+        const groups = {};
 
-        // Материалы
-        const matBase = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4, metalness: 0.6 }); // оранжевый металл
-        const matCage = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.7 }); // синий каркас
-        const matSusp = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5, metalness: 0.5 }); // зеленый
-        const matTire = new THREE.MeshStandardMaterial({ color: 0x1e2229, roughness: 0.9, metalness: 0.1 }); // резина
-        const matRim = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.2, metalness: 0.8 });  // диски
-        const matBat = new THREE.MeshStandardMaterial({ color: 0x9333ea, roughness: 0.3, metalness: 0.4 });  // фиолетовый
-        const matMotor = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.3, metalness: 0.8 });// красный мотор
-        const matPlow = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4, metalness: 0.6 }); // бирюзовый
-
-        // Функция добавления балки (прямоугольной трубы) между двумя 3D точками
-        function addBeam(group, p1, p2, width, height, material) {
-            const v1 = new THREE.Vector3(...p1);
-            const v2 = new THREE.Vector3(...p2);
-            const distance = v1.distanceTo(v2);
-            const geom = new THREE.BoxGeometry(width, height, distance);
-            const mesh = new THREE.Mesh(geom, material);
+        function addMesh(p, geom, pos) {
+            const mesh = new THREE.Mesh(geom, MAT[p.m]);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-
-            const mid = new THREE.Vector3().addVectors(v1, v2).multiplyScalar(0.5);
-            mesh.position.copy(mid);
-            mesh.lookAt(v2);
-            group.add(mesh);
+            if (pos) mesh.position.set(...pos);
+            if (!groups[p.g]) { groups[p.g] = new THREE.Group(); scene.add(groups[p.g]); }
+            groups[p.g].add(mesh);
+            return mesh;
         }
 
-        // --- 1. НИЖНЯЯ ПЛАТФОРМА (50х50) ---
-        const groundClearance = 280;
-        const baseZ_front = 1050;
-        const baseZ_rear = -1050;
-        const halfW = 550; // ширина пола 1100 мм
-
-        // Лонжероны
-        addBeam(groups.base, [-halfW, groundClearance, baseZ_rear], [-halfW, groundClearance, baseZ_front], 50, 50, matBase);
-        addBeam(groups.base, [halfW, groundClearance, baseZ_rear], [halfW, groundClearance, baseZ_front], 50, 50, matBase);
-        // Поперечины
-        addBeam(groups.base, [-halfW, groundClearance, baseZ_front], [halfW, groundClearance, baseZ_front], 50, 50, matBase);
-        addBeam(groups.base, [-halfW, groundClearance, baseZ_rear], [halfW, groundClearance, baseZ_rear], 50, 50, matBase);
-        addBeam(groups.base, [-halfW, groundClearance, 0], [halfW, groundClearance, 0], 50, 50, matBase);
-        addBeam(groups.base, [-halfW, groundClearance, -500], [halfW, groundClearance, -500], 50, 50, matBase);
-        addBeam(groups.base, [-halfW, groundClearance, 500], [halfW, groundClearance, 500], 50, 50, matBase);
-
-        // --- 2. КАРКАС БЕЗОПАСНОСТИ (40х40) БЕЗ ТРУБОГИБА ---
-        const roofH = groundClearance + 1150;
-        const roofHalfW = 480;
-        const A_pillar_Z = 300;
-        const B_pillar_Z = -550;
-
-        // Главные вертикальные стойки (В-стойки)
-        addBeam(groups.cage, [-halfW, groundClearance, B_pillar_Z], [-roofHalfW, roofH, B_pillar_Z], 40, 40, matCage);
-        addBeam(groups.cage, [halfW, groundClearance, B_pillar_Z], [roofHalfW, roofH, B_pillar_Z], 40, 40, matCage);
-        // Наклонные стойки (А-стойки лобового стекла)
-        addBeam(groups.cage, [-halfW, groundClearance, A_pillar_Z], [-roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
-        addBeam(groups.cage, [halfW, groundClearance, A_pillar_Z], [roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
-
-        // Верхний контур крыши
-        addBeam(groups.cage, [-roofHalfW, roofH, A_pillar_Z - 100], [roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
-        addBeam(groups.cage, [-roofHalfW, roofH, B_pillar_Z], [roofHalfW, roofH, B_pillar_Z], 40, 40, matCage);
-        addBeam(groups.cage, [-roofHalfW, roofH, B_pillar_Z], [-roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
-        addBeam(groups.cage, [roofHalfW, roofH, B_pillar_Z], [roofHalfW, roofH, A_pillar_Z - 100], 40, 40, matCage);
-
-        // Задние диагонали и моторный отсек
-        addBeam(groups.cage, [-roofHalfW, roofH, B_pillar_Z], [-halfW, groundClearance, baseZ_rear], 40, 40, matCage);
-        addBeam(groups.cage, [roofHalfW, roofH, B_pillar_Z], [halfW, groundClearance, baseZ_rear], 40, 40, matCage);
-        // Задний крест жесткости
-        addBeam(groups.cage, [-halfW, groundClearance, B_pillar_Z], [roofHalfW, roofH, B_pillar_Z], 30, 30, matCage);
-        addBeam(groups.cage, [halfW, groundClearance, B_pillar_Z], [-roofHalfW, roofH, B_pillar_Z], 30, 30, matCage);
-
-        // Передний капотный треугольник к подрамнику подвески
-        addBeam(groups.cage, [-halfW, groundClearance, A_pillar_Z], [-300, groundClearance + 350, baseZ_front], 40, 40, matCage);
-        addBeam(groups.cage, [halfW, groundClearance, A_pillar_Z], [300, groundClearance + 350, baseZ_front], 40, 40, matCage);
-        addBeam(groups.cage, [-300, groundClearance + 350, baseZ_front], [300, groundClearance + 350, baseZ_front], 40, 40, matCage);
-
-        // Боковые защитные дуги (пороги)
-        addBeam(groups.cage, [-halfW - 80, groundClearance + 350, B_pillar_Z], [-halfW - 80, groundClearance + 350, A_pillar_Z], 40, 40, matCage);
-        addBeam(groups.cage, [halfW + 80, groundClearance + 350, B_pillar_Z], [halfW + 80, groundClearance + 350, A_pillar_Z], 40, 40, matCage);
-
-        // --- 3. ПОДВЕСКА И КОЛЕСА (175/70 R13) ---
-        const wheelRadius = 288;
-        const trackHalf = 650; // половина колеи 1300 мм
-
-        function addWheel(group, x, z) {
-            const wheelGroup = new THREE.Group();
-            wheelGroup.position.set(x, wheelRadius, z);
-
-            // Шина
-            const tireGeom = new THREE.CylinderGeometry(wheelRadius, wheelRadius, 175, 24);
-            tireGeom.rotateZ(Math.PI / 2);
-            const tire = new THREE.Mesh(tireGeom, matTire);
-            tire.castShadow = true;
-            wheelGroup.add(tire);
-
-            // Диск
-            const rimGeom = new THREE.CylinderGeometry(165, 165, 176, 16);
-            rimGeom.rotateZ(Math.PI / 2);
-            const rim = new THREE.Mesh(rimGeom, matRim);
-            wheelGroup.add(rim);
-
-            group.add(wheelGroup);
-
-            // А-рычаги подвески (Верхний и Нижний)
-            const sign = x > 0 ? 1 : -1;
-            const innerX = sign * halfW;
-            const outerX = sign * (trackHalf - 50);
-
-            // Нижний А-рычаг
-            addBeam(group, [innerX, groundClearance, z - 120], [outerX, wheelRadius - 40, z], 25, 25, matSusp);
-            addBeam(group, [innerX, groundClearance, z + 120], [outerX, wheelRadius - 40, z], 25, 25, matSusp);
-            // Верхний А-рычаг
-            addBeam(group, [innerX * 0.7, groundClearance + 220, z - 100], [outerX, wheelRadius + 60, z], 25, 25, matSusp);
-            addBeam(group, [innerX * 0.7, groundClearance + 220, z + 100], [outerX, wheelRadius + 60, z], 25, 25, matSusp);
-
-            // Амортизатор
-            addBeam(group, [outerX - sign * 40, wheelRadius, z], [innerX * 0.6, groundClearance + 350, z], 30, 30, matRim);
-        }
-
-        // 4 колеса
-        const wheelZ_F = baseZ_front - 100; // ~950
-        const wheelZ_R = baseZ_rear + 100;  // ~ -950
-        addWheel(groups.suspension, trackHalf, wheelZ_F);
-        addWheel(groups.suspension, -trackHalf, wheelZ_F);
-        addWheel(groups.suspension, trackHalf, wheelZ_R);
-        addWheel(groups.suspension, -trackHalf, wheelZ_R);
-
-        // ШРУСы и задние приводы
-        addBeam(groups.suspension, [0, wheelRadius, wheelZ_R], [trackHalf - 60, wheelRadius, wheelZ_R], 30, 30, matRim);
-        addBeam(groups.suspension, [0, wheelRadius, wheelZ_R], [-trackHalf + 60, wheelRadius, wheelZ_R], 30, 30, matRim);
-
-        // --- 4. МОДУЛЬНАЯ БАТАРЕЯ (2 МОДУЛЯ ПО ЦЕНТРУ ТАНДЕМОМ) ---
-        function addBatteryBox(group, zPos, label) {
-            const batGeom = new THREE.BoxGeometry(320, 220, 420);
-            const batMesh = new THREE.Mesh(batGeom, matBat);
-            batMesh.position.set(0, groundClearance + 130, zPos);
-            batMesh.castShadow = true;
-            group.add(batMesh);
-
-            // Металлический лоток АКБ
-            const trayGeom = new THREE.BoxGeometry(340, 10, 440);
-            const trayMesh = new THREE.Mesh(trayGeom, matBase);
-            trayMesh.position.set(0, groundClearance + 10, zPos);
-            group.add(trayMesh);
-        }
-
-        addBatteryBox(groups.batteries, 100, "АКБ №1 (50 км)");
-        addBatteryBox(groups.batteries, -350, "АКБ №2 (+50 км)");
-
-        // Сиденья (по бокам от батарейного тоннеля)
-        const seatGeom = new THREE.BoxGeometry(420, 50, 440);
-        const seatBackGeom = new THREE.BoxGeometry(420, 550, 50);
-        const matSeat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
-
-        [-280, 280].forEach(sx => {
-            const seatBase = new THREE.Mesh(seatGeom, matSeat);
-            seatBase.position.set(sx, groundClearance + 160, -100);
-            groups.base.add(seatBase);
-
-            const seatBack = new THREE.Mesh(seatBackGeom, matSeat);
-            seatBack.position.set(sx, groundClearance + 430, -320);
-            seatBack.rotation.x = -0.25;
-            groups.base.add(seatBack);
-        });
-
-        // --- 5. СИЛОВАЯ ЧАСТЬ (QS138 + РЕДУКТОР ВАЗ) ---
-        // Центральный дифференциал
-        const diffGeom = new THREE.CylinderGeometry(110, 110, 180, 16);
-        diffGeom.rotateZ(Math.PI / 2);
-        const diffMesh = new THREE.Mesh(diffGeom, matMotor);
-        diffMesh.position.set(0, wheelRadius, wheelZ_R);
-        groups.drivetrain.add(diffMesh);
-
-        // Большая ведомая звезда (47T)
-        const sprocketGeom = new THREE.CylinderGeometry(120, 120, 8, 24);
-        sprocketGeom.rotateZ(Math.PI / 2);
-        const sprocMesh = new THREE.Mesh(sprocketGeom, matRim);
-        sprocMesh.position.set(40, wheelRadius, wheelZ_R);
-        groups.drivetrain.add(sprocMesh);
-
-        // Мотор QS138 70H (над редуктором)
-        const motorGeom = new THREE.CylinderGeometry(105, 105, 230, 24);
-        motorGeom.rotateZ(Math.PI / 2);
-        const motorMesh = new THREE.Mesh(motorGeom, matMotor);
-        motorMesh.position.set(0, wheelRadius + 230, wheelZ_R + 150);
-        groups.drivetrain.add(motorMesh);
-
-        // Цепь
-        addBeam(groups.drivetrain, [40, wheelRadius, wheelZ_R], [40, wheelRadius + 230, wheelZ_R + 150], 12, 12, matRim);
-
-        // Контроллер Votol EM150
-        const ctrlGeom = new THREE.BoxGeometry(200, 90, 280);
-        const ctrlMesh = new THREE.Mesh(ctrlGeom, matRim);
-        ctrlMesh.position.set(0, roofH - 450, B_pillar_Z);
-        groups.drivetrain.add(ctrlMesh);
-
-        // --- 6. КРЕПЕЖ СНЕГООТВАЛА (Спереди) ---
-        // Приемный квадрат 50х50 спереди
-        addBeam(groups.plow, [0, groundClearance, baseZ_front], [0, groundClearance, baseZ_front + 250], 60, 60, matPlow);
-        // Дышло отвала (раздвоенное)
-        addBeam(groups.plow, [-350, groundClearance - 50, baseZ_front + 600], [0, groundClearance, baseZ_front + 250], 50, 50, matPlow);
-        addBeam(groups.plow, [350, groundClearance - 50, baseZ_front + 600], [0, groundClearance, baseZ_front + 250], 50, 50, matPlow);
-
-        // Сам отвал (ковш 1400 мм шириной, изогнутый цилиндр)
-        const bladeGeom = new THREE.CylinderGeometry(400, 400, 1400, 16, 1, false, 0, Math.PI / 3);
-        bladeGeom.rotateZ(Math.PI / 2);
-        bladeGeom.rotateY(-0.35); // скос для сброса снега вправо
-        const bladeMesh = new THREE.Mesh(bladeGeom, matPlow);
-        bladeMesh.position.set(0, groundClearance + 50, baseZ_front + 650);
-        bladeMesh.castShadow = true;
-        groups.plow.add(bladeMesh);
-
-        // Лебедка подъема
-        const winchGeom = new THREE.CylinderGeometry(55, 55, 140, 16);
-        winchGeom.rotateZ(Math.PI / 2);
-        const winchMesh = new THREE.Mesh(winchGeom, matRim);
-        winchMesh.position.set(0, groundClearance + 320, baseZ_front);
-        groups.plow.add(winchMesh);
-
-        // Переключение видимости слоев
-        window.toggleLayer = function(layerName) {
-            const grp = groups[layerName];
-            if (grp) {
-                grp.visible = !grp.visible;
-                const statusSpan = document.getElementById('st-' + layerName);
-                if (statusSpan) {
-                    statusSpan.innerText = grp.visible ? "ВКЛ" : "ВЫКЛ";
-                    statusSpan.parentElement.classList.toggle('active', grp.visible);
-                }
+        for (const p of PARTS) {
+            if (p.t === 'beam') {
+                const a = new THREE.Vector3(...p.a), b = new THREE.Vector3(...p.b);
+                const mesh = addMesh(p, new THREE.BoxGeometry(p.w, p.h, a.distanceTo(b)));
+                mesh.position.copy(a.clone().add(b).multiplyScalar(0.5));
+                mesh.lookAt(b);
+            } else if (p.t === 'box') {
+                addMesh(p, new THREE.BoxGeometry(...p.s), p.c);
+            } else if (p.t === 'cyl') {
+                const geom = new THREE.CylinderGeometry(p.r, p.r, p.l, p.seg);
+                if (p.ax === 'x') geom.rotateZ(Math.PI / 2);
+                else if (p.ax === 'z') geom.rotateX(Math.PI / 2);
+                else if (p.ax === 'steer') geom.rotateX(Math.PI / 2 - 0.35);
+                addMesh(p, geom, p.c);
             }
+        }
+
+        window.toggleLayer = function(name) {
+            const grp = groups[name];
+            if (!grp) return;
+            grp.visible = !grp.visible;
+            const st = document.getElementById('st-' + name);
+            st.innerText = grp.visible ? 'ВКЛ' : 'ВЫКЛ';
+            st.parentElement.classList.toggle('active', grp.visible);
         };
 
-        // Анимация
-        function animate() {
+        (function animate() {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
-        }
-        animate();
+        })();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;

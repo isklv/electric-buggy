@@ -23,6 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Regenerate 3D model and drawings from chassis_geometry.py
+        run: |
+          python3 generate_3d.py
+          python3 generate_assembly_drawings.py
+
       - name: Assemble site
         run: |
           mkdir -p _site
